@@ -2,237 +2,454 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hệ thống phim VIP Bảo Mật</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rạp Phim Mini App VIP</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * { box-sizing: border-box; }
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: #0d0d0d; color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow-x: hidden;
+        /* TOÀN BỘ PHONG CÁCH PREMIER NETFLIX */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0b0b0c;
+            color: #f5f5f7;
+            margin: 0;
+            padding: 16px;
+            padding-bottom: 40px;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        h2 { 
+            color: #ff0022; 
+            text-align: center; 
+            margin: 10px 0 20px 0; 
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 0, 34, 0.3);
+        }
+        
+        /* BANNER ĐẾM NGƯỢC VIP CHUYÊN NGHIỆP */
+        .vip-countdown-box {
+            background: linear-gradient(135deg, #1e1b4b, #311015);
+            padding: 14px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 24px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .vip-countdown-box p { 
+            margin: 0; 
+            font-size: 11px; 
+            color: #f87171; 
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        #countdown-timer { 
+            font-size: 15px; 
+            color: #ffffff; 
+            font-family: system-ui, sans-serif;
+            display: block; 
+            margin-top: 6px; 
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
         }
 
-        /* VÙNG GIAO DIỆN CHÍNH (TÌM KIẾM + VIP) */
-        #main-dashboard { padding: 20px; display: block; }
-        .vip-card {
-            background: linear-gradient(135deg, #e67e22, #f39c12);
-            border-radius: 12px; padding: 15px; margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3); text-align: center;
+        /* KHU VỰC TÌM KIẾM */
+        .search-box { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 24px; 
         }
-        .vip-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
-        .vip-countdown { font-size: 20px; font-weight: bold; margin-top: 5px; font-family: monospace; }
+        input {
+            flex: 1; 
+            padding: 14px 20px; 
+            border-radius: 30px;
+            border: 1px solid #27272a; 
+            background-color: #18181b;
+            color: white; 
+            outline: none; 
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        input:focus {
+            border-color: #ff0022;
+            box-shadow: 0 0 0 2px rgba(255, 0, 34, 0.2);
+            background-color: #202024;
+        }
+        .btn {
+            padding: 14px 24px; 
+            background: linear-gradient(180deg, #ff0022, #c4001a);
+            color: white; 
+            border: none; 
+            border-radius: 30px;
+            font-weight: 700; 
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 0, 34, 0.3);
+            transition: transform 0.1s ease;
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
         
-        .search-box { display: flex; gap: 8px; margin-bottom: 20px; }
-        .search-box input {
-            flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333;
-            background: #1a1a1a; color: #fff; font-size: 15px; outline: none;
+        /* MÀN HÌNH KHÓA TRUY CẬP TRÔNG XỊN HƠN */
+        #lock-screen {
+            display: none; 
+            position: fixed; 
+            top:0; left:0; width:100%; height:100%;
+            background:#0b0b0c; 
+            z-index: 99999; 
+            padding-top: 35%; 
+            box-sizing: border-box;
         }
-        .search-box button {
-            padding: 0 20px; background: #e67e22; border: none; border-radius: 8px;
-            color: #fff; font-weight: bold; font-size: 15px; cursor: pointer;
+        .lock-card { 
+            background: #18181b; 
+            padding: 40px 24px; 
+            margin: 0 24px; 
+            border-radius: 24px; 
+            border: 1px solid rgba(255, 0, 34, 0.2); 
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
         }
         
-        .movie-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        /* DANH SÁCH PHIM DẠNG LƯỚI HOLLYWOOD */
+        .movie-list { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 16px; 
+        }
         .movie-item {
-            background: #1a1a1a; border-radius: 8px; overflow: hidden; cursor: pointer;
-            border: 1px solid #222; transition: 0.2s;
+            background-color: #18181b; 
+            border-radius: 14px;
+            overflow: hidden; 
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4); 
+            transition: transform 0.2s ease;
         }
-        .movie-item img { width: 100%; height: 180px; object-fit: cover; }
-        .movie-item .title { padding: 8px; font-size: 13px; font-weight: 500; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        /* VÙNG TRÌNH PHÁT PHIM FULL MÀN HÌNH */
-        #player-view { display: none; width: 100%; height: 100%; flex-direction: column; background: #000; }
-        #status-bar {
-            padding: 12px; background: #111; text-align: center; font-size: 14px;
-            border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center;
+        .movie-item:active {
+            transform: scale(0.97);
         }
-        .btn-back { background: #333; border: none; color: #fff; padding: 5px 12px; border-radius: 4px; cursor: pointer; }
-        #player-wrapper { position: relative; width: 100%; flex-grow: 1; background: #000; }
-        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .movie-poster-wrapper {
+            position: relative;
+            width: 100%;
+            height: 230px;
+            background-color: #27272a;
+        }
+        .movie-item img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
+        .movie-year-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            color: #ff0022;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .movie-title {
+            font-size: 13px; 
+            padding: 10px 8px; 
+            font-weight: 600;
+            line-height: 1.4;
+            color: #f4f4f5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 36px;
+        }
         
-        .tip-banner { background: #222; color: #f39c12; font-size: 11px; text-align: center; padding: 5px; }
-
-        /* MÀN HÌNH KHÓA BẢO MẬT TUYỆT ĐỐI CHỐNG LEAK */
-        #secure-lock {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 99999; justify-content: center; align-items: center;
-            flex-direction: column; text-align: center; padding: 20px;
+        /* GIAO DIỆN CHI TIẾT PHIM MỚI */
+        #detail-view {
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background: #0b0b0c;
+            z-index: 5000; 
+            overflow-y: auto; 
+            padding: 16px; 
+            box-sizing: border-box;
         }
-        .lock-card { background: #111; padding: 30px; border-radius: 12px; border: 1px solid #ff4d4d; }
+        .detail-banner {
+            margin-top: 45px;
+            background: #18181b;
+            border-radius: 20px;
+            padding: 16px;
+            display: flex;
+            gap: 16px;
+            border: 1px solid #27272a;
+        }
+        .detail-banner img { 
+            width: 105px; 
+            height: 150px; 
+            object-fit: cover; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .detail-info {
+            flex: 1;
+        }
+        .detail-info h3 { 
+            margin: 0 0 8px 0; 
+            color: #ffffff; 
+            font-size: 18px; 
+            font-weight: 700;
+            line-height: 1.3;
+        }
+        .detail-info p { 
+            font-size: 13px; 
+            color: #a1a1aa; 
+            margin: 6px 0; 
+        }
+        .movie-content-text {
+            background: #18181b;
+            padding: 16px;
+            border-radius: 16px;
+            margin-top: 16px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #d4d4d8;
+            border: 1px solid #27272a;
+        }
+        
+        .server-title { 
+            color: #a1a1aa; 
+            font-size: 12px; 
+            margin: 20px 0 10px 4px; 
+            font-weight: 700; 
+            letter-spacing: 1px;
+        }
+        
+        /* DANH SÁCH TẬP PHIM HIỆN ĐẠI */
+        .episode-list { 
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px; 
+            margin-bottom: 25px; 
+        }
+        .episode-btn {
+            background-color: #18181b; 
+            color: #f4f4f5; 
+            padding: 12px 5px;
+            border-radius: 10px; 
+            font-size: 13px; 
+            font-weight: 600;
+            border: 1px solid #27272a; 
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+        .episode-btn:active { 
+            background: #ff0022; 
+            border-color: #ff0022;
+            color: white;
+        }
+        .back-btn { 
+            background: #27272a; 
+            position: absolute; 
+            top: 12px; left: 16px; 
+            padding: 8px 16px; 
+            font-size: 13px;
+            box-shadow: none;
+        }
+
+        /* TRÌNH PHÁT PHIM FULL SCREEN */
+        #player-view {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: #000; z-index: 9999;
+        }
+        .close-player-btn {
+            position: absolute; top: 16px; right: 16px;
+            background: rgba(39, 39, 42, 0.8); 
+            backdrop-filter: blur(4px);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.1); 
+            padding: 8px 16px; 
+            border-radius: 20px;
+            font-weight: bold; z-index: 10001; cursor: pointer;
+            font-size: 12px;
+        }
+        iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
 
-<div id="secure-lock">
-    <div class="lock-card">
-        <h2 style="color: #ff4d4d; margin-top: 0;">🔒 TRUY CẬP BỊ TỪ CHỐI</h2>
-        <p style="color: #ccc; font-size: 14px;">Đường link đã hết hạn VIP hoặc mã xác thực không hợp lệ.</p>
-        <p style="color: #888; font-size: 12px; margin-bottom: 0;">Vui lòng quay lại hệ thống Telegram Bot để lấy phiên liên kết mới.</p>
-    </div>
-</div>
-
-<div id="main-dashboard">
-    <div class="vip-card">
-        <div class="vip-title">👑 Thời gian VIP còn lại</div>
-        <div id="countdown-text" class="vip-countdown">Đang tính toán...</div>
+    <div id="lock-screen">
+        <div class="lock-card">
+            <h3 style="margin-top:0; color:#ff0022; font-size: 20px;">⚠️ TRUY CẬP BỊ TỪ CHỐI</h3>
+            <p style="font-size:14px; line-height:1.5;">Tài khoản VIP của bạn chưa kích hoạt hoặc đã hết hạn.</p>
+            <p style="color:#a1a1aa; font-size:12px; margin-top:15px;">Vui lòng mua mã Key VIP mới và gửi vào ô chat Bot để kích hoạt lại.</p>
+        </div>
     </div>
 
-    <div class="search-box">
-        <input type="text" id="search-input" placeholder="Nhập tên phim cần tìm...">
-        <button onclick="executeSearch()">Tìm</button>
-    </div>
-
-    <div id="results-heading" style="margin-bottom: 10px; font-size: 14px; color: #aaa;">Phim gợi ý ngày hôm nay:</div>
-    <div id="movie-list" class="movie-grid">
-        <div style="grid-column: span 2; text-align: center; color: #666; padding: 20px;">Đang tải danh sách phim...</div>
-    </div>
-</div>
-
-<div id="player-view">
-    <div id="status-bar">
-        <button class="btn-back" id="back-btn-control" onclick="closePlayer()">◀ Thoát</button>
-        <span id="movie-title-text" style="font-weight: 500; font-size: 13px;">Đang tải phim...</span>
-        <div style="width: 50px;"></div>
-    </div>
-    <div class="tip-banner">💡 Mẹo: Xoay ngang điện thoại để xem Full màn hình</div>
-    <div id="player-wrapper">
-        <iframe id="video-player" src="" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>
-    </div>
-</div>
-
-<script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-    tg.ready();
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const expireTimeStr = urlParams.get('expire');
-    const directVideoUrl = urlParams.get('url');
-    const directMovieName = urlParams.get('name');
-    const querySearch = urlParams.get('search');
-    const viewMode = urlParams.get('mode'); // Nhận diện luồng xem ngoài
-
-    let isVipValid = false;
-
-    // 1. Thuật toán phân tích chuỗi thời gian Token gửi từ Bot
-    function verifyVipAccess() {
-        if (!expireTimeStr) return false;
-        try {
-            const cleanStr = decodeURIComponent(expireTimeStr);
-            const [datePart, timePart] = cleanStr.split(' ');
-            const [day, month, year] = datePart.split('/');
-            const [hour, minute, second] = timePart.split(':');
-            const expireDate = new Date(year, month - 1, day, hour, minute, second);
-            
-            return (expireDate - new Date()) > 0;
-        } catch(e) {
-            return false;
-        }
-    }
-
-    isVipValid = verifyVipAccess();
-
-    // 🔥 HÀNG RÀO AN NINH: Chặn đứng truy cập ngoài nếu không có VIP / VIP hết hạn
-    if (viewMode === 'external' && !isVipValid) {
-        document.getElementById('main-dashboard').style.display = 'none';
-        document.getElementById('player-view').style.display = 'none';
-        document.getElementById('secure-lock').style.display = 'flex';
-    } else {
-        // Đồng bộ thời gian đếm ngược
-        if (expireTimeStr) {
-            function updateCountdown() {
-                try {
-                    const cleanStr = decodeURIComponent(expireTimeStr);
-                    const [datePart, timePart] = cleanStr.split(' ');
-                    const [day, month, year] = datePart.split('/');
-                    const [hour, minute, second] = timePart.split(':');
-                    const expireDate = new Date(year, month - 1, day, hour, minute, second);
-                    const diff = expireDate - new Date();
-                    
-                    if (diff <= 0) {
-                        document.getElementById('countdown-text').innerText = "HẾT HẠN VIP";
-                        if(viewMode === 'external') { location.reload(); } 
-                        return;
-                    }
-                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                    document.getElementById('countdown-text').innerText = `${days}ngày ${hours}:${minutes}:${seconds}`;
-                } catch(e) {}
-            }
-            setInterval(updateCountdown, 1000);
-            updateCountdown();
-        }
-
-        // Khởi động luồng phát video trực tiếp
-        if (directVideoUrl) {
-            document.getElementById('main-dashboard').style.display = 'none';
-            document.getElementById('player-view').style.display = 'flex';
-            document.getElementById('video-player').src = decodeURIComponent(directVideoUrl);
-            document.getElementById('movie-title-text').innerText = directMovieName ? decodeURIComponent(directMovieName) : "Đang phát phim";
-            
-            // Nếu xem ngoài bằng trình duyệt, ẩn nút thoát trở về mục tìm kiếm của app
-            if (viewMode === 'external') {
-                document.getElementById('back-btn-control').style.display = 'none';
-            }
-        } else {
-            if (querySearch) {
-                document.getElementById('search-input').value = decodeURIComponent(querySearch);
-                executeSearch(decodeURIComponent(querySearch));
-            } else {
-                executeSearch("cuoc chien thuong luu"); 
-            }
-        }
-    }
-
-    // 3. Hệ thống tương tác API Phim
-    function executeSearch(keywordOverride) {
-        const keyword = keywordOverride || document.getElementById('search-input').value.trim();
-        if (!keyword) return;
+    <div id="main-view">
+        <h2>🎬 PREMIUM CINEMA</h2>
         
-        document.getElementById('results-heading').innerText = `Kết quả tìm kiếm cho: "${keyword}"`;
-        document.getElementById('movie-list').innerHTML = `<div style="grid-column: span 2; text-align: center; color: #aaa; padding: 20px;">Đang tìm kiếm phim...</div>`;
+        <div class="vip-countdown-box">
+            <p>⏱️ Thời gian VIP còn lại</p>
+            <span id="countdown-timer">Đang kết nối dữ liệu...</span>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="keyword" placeholder="Tìm tên phim, anime, quốc gia...">
+            <button class="btn" onclick="searchMovie()">Tìm</button>
+        </div>
         
-        fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&limit=20`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success' && data.data.items.length > 0) {
-                    let html = '';
-                    data.data.items.forEach(item => {
+        <div class="movie-list" id="result-list"></div>
+    </div>
+
+    <div id="detail-view">
+        <button class="btn back-btn" onclick="closeDetailView()">🔙 Trở Về</button>
+        <div id="movie-info-box"></div>
+        <div id="episode-box"></div>
+    </div>
+
+    <div id="player-view">
+        <button class="close-player-btn" onclick="closePlayerView()">❌ Đóng Phim</button>
+        <iframe id="video-iframe" src="" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('user_id');
+            const expireStr = urlParams.get('expire');
+            
+            if (!userId || !expireStr) {
+                hienThiManHinhKhoa();
+                return;
+            }
+
+            khoiChayDemNguoc(decodeURIComponent(expireStr));
+
+            const searchKw = urlParams.get('search');
+            if (searchKw) {
+                document.getElementById('keyword').value = decodeURIComponent(searchKw);
+                searchMovie();
+            }
+        }
+
+        function khoiChayDemNguoc(targetDateStr) {
+            const parts = targetDateStr.split(" ");
+            const dateParts = parts[0].split("/");
+            const timeParts = parts[1].split(":");
+            const targetDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0], timeParts[0], timeParts[1], timeParts[2]).getTime();
+
+            const timerInterval = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+
+                if (distance < 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById("countdown-timer").innerHTML = "HẾT HẠN VIP";
+                    hienThiManHinhKhoa();
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById("countdown-timer").innerHTML = 
+                    `${days} ngày, ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function hienThiManHinhKhoa() {
+            document.getElementById('main-view').style.display = 'none';
+            document.getElementById('detail-view').style.display = 'none';
+            document.getElementById('player-view').style.display = 'none';
+            document.getElementById('lock-screen').style.display = 'block';
+        }
+
+        async function searchMovie() {
+            const kw = document.getElementById('keyword').value.trim();
+            if(!kw) return;
+            document.getElementById('result-list').innerHTML = "<p style='grid-column: span 2; text-align:center; color:#a1a1aa;'>🔍 Kho phim đang tải, xin chờ...</p>";
+            try {
+                const res = await fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=40`);
+                const data = await res.json();
+                let html = '';
+                if(data.status === 'success' && data.data.items && data.data.items.length > 0) {
+                    data.data.items.forEach(phim => {
                         html += `
-                            <div class="movie-item" onclick="openMovieDetail('${item.slug}')">
-                                <img src="https://phimimg.com/${item.thumb_url}" onerror="this.src='https://placehold.co/150x200?text=No+Image'">
-                                <div class="title">${item.name}</div>
+                            <div class="movie-item" onclick="loadMovieDetail('${phim.slug}')">
+                                <div class="movie-poster-wrapper">
+                                    <span class="movie-year-badge">${phim.year}</span>
+                                    <img src="https://img.phimapi.com/${phim.thumb_url}" onerror="this.src='https://via.placeholder.com/150x230?text=No+Poster'">
+                                </div>
+                                <div class="movie-title">${phim.name}</div>
                             </div>
                         `;
                     });
-                    document.getElementById('movie-list').innerHTML = html;
                 } else {
-                    document.getElementById('movie-list').innerHTML = `<div style="grid-column: span 2; text-align: center; color: #ff4d4d; padding: 20px;">Không tìm thấy phim phù hợp!</div>`;
+                    html = '<p style="grid-column: span 2; text-align:center; color:#a1a1aa;">❌ Không tìm thấy phim phù hợp!</p>';
                 }
-            })
-            .catch(() => {
-                document.getElementById('movie-list').innerHTML = `<div style="grid-column: span 2; text-align: center; color: #ff4d4d; padding: 20px;">Lỗi kết nối máy chủ dữ liệu.</div>`;
-            });
-    }
+                document.getElementById('result-list').innerHTML = html;
+            } catch (e) {
+                document.getElementById('result-list').innerHTML = '<p style="grid-column: span 2; text-align:center; color:#ff0022;">⚠️ Lỗi kết nối API kho phim.</p>';
+            }
+        }
 
-    function openMovieDetail(slug) {
-        tg.sendData(`chon_${slug}`);
-        tg.close();
-    }
+        async function loadMovieDetail(slug) {
+            try {
+                const res = await fetch(`https://phimapi.com/phim/${slug}`);
+                const data = await res.json();
+                if(!data || !data.movie) return;
 
-    function closePlayer() {
-        document.getElementById('video-player').src = ""; 
-        document.getElementById('player-view').style.display = 'none';
-        document.getElementById('main-dashboard').style.display = 'block';
-    }
+                const movie = data.movie;
+                let infoHtml = `
+                    <div class="detail-banner">
+                        <img src="${movie.thumb_url}" onerror="this.src='https://via.placeholder.com/110x160'">
+                        <div class="detail-info">
+                            <h3>${movie.name}</h3>
+                            <p>🗓️ Năm phát hành: <span style="color:white; font-weight:600;">${movie.year}</span></p>
+                            <p>⏱️ Thời lượng: <span style="color:white; font-weight:600;">${movie.time || 'N/A'}</span></p>
+                            <p>🌍 Quốc gia: <span style="color:white; font-weight:600;">${movie.country && movie.country[0] ? movie.country[0].name : 'N/A'}</span></p>
+                        </div>
+                    </div>
+                    <div class="movie-content-text"><strong>Nội dung:</strong> ${movie.content ? movie.content : 'Đang cập nhật nội dung...'}</div>
+                `;
+                document.getElementById('movie-info-box').innerHTML = infoHtml;
 
-    tg.onEvent('viewportChanged', function() {
-        if (!tg.isExpanded) tg.expand();
-    });
-</script>
+                let epBoxHtml = '';
+                if (data.episodes && data.episodes.length > 0) {
+                    data.episodes.forEach(server => {
+                        if(server.server_data && server.server_data.length > 0) {
+                            epBoxHtml += `<div class="server-title">CHỌN TẬP PHIM (${server.server_name.toUpperCase()})</div><div class="episode-list">`;
+                            server.server_data.forEach(tap => {
+                                if(tap.link_m3u8) {
+                                    epBoxHtml += `<button class="episode-btn" onclick="openPlayerView('${tap.link_m3u8}')">${tap.name}</button>`;
+                                }
+                            });
+                            epBoxHtml += `</div>`;
+                        }
+                    });
+                } else {
+                    epBoxHtml += '<p style="text-align:center; color:#a1a1aa;">Phim chưa cập nhật tập trực tuyến.</p>';
+                }
+                document.getElementById('episode-box').innerHTML = epBoxHtml;
+                document.getElementById('detail-view').style.display = 'block';
+            } catch (e) { alert('Lỗi hệ thống tải phim!'); }
+        }
+
+        function openPlayerView(linkVideo) {
+            document.getElementById('video-iframe').src = `https://player.phimapi.com/player/?url=${encodeURIComponent(linkVideo)}`;
+            document.getElementById('player-view').style.display = 'block';
+        }
+        function closeDetailView() { document.getElementById('detail-view').style.display = 'none'; }
+        function closePlayerView() { document.getElementById('player-view').style.display = 'none'; document.getElementById('video-iframe').src = ''; }
+    </script>
 </body>
 </html>
