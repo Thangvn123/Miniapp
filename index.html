@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hệ thống phim VIP</title>
+    <title>Hệ thống phim VIP Bảo Mật</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * { box-sizing: border-box; }
@@ -15,22 +15,16 @@
         }
 
         /* VÙNG GIAO DIỆN CHÍNH (TÌM KIẾM + VIP) */
-        #main-dashboard {
-            padding: 20px;
-            display: block;
-        }
+        #main-dashboard { padding: 20px; display: block; }
         .vip-card {
             background: linear-gradient(135deg, #e67e22, #f39c12);
             border-radius: 12px; padding: 15px; margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3);
-            text-align: center;
+            box-shadow: 0 4px 15px rgba(230, 126, 34, 0.3); text-align: center;
         }
         .vip-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
         .vip-countdown { font-size: 20px; font-weight: bold; margin-top: 5px; font-family: monospace; }
         
-        .search-box {
-            display: flex; gap: 8px; margin-bottom: 20px;
-        }
+        .search-box { display: flex; gap: 8px; margin-bottom: 20px; }
         .search-box input {
             flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333;
             background: #1a1a1a; color: #fff; font-size: 15px; outline: none;
@@ -40,9 +34,7 @@
             color: #fff; font-weight: bold; font-size: 15px; cursor: pointer;
         }
         
-        .movie-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
-        }
+        .movie-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .movie-item {
             background: #1a1a1a; border-radius: 8px; overflow: hidden; cursor: pointer;
             border: 1px solid #222; transition: 0.2s;
@@ -51,11 +43,7 @@
         .movie-item .title { padding: 8px; font-size: 13px; font-weight: 500; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         /* VÙNG TRÌNH PHÁT PHIM FULL MÀN HÌNH */
-        #player-view {
-            display: none; 
-            width: 100%; height: 100%;
-            flex-direction: column; background: #000;
-        }
+        #player-view { display: none; width: 100%; height: 100%; flex-direction: column; background: #000; }
         #status-bar {
             padding: 12px; background: #111; text-align: center; font-size: 14px;
             border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center;
@@ -64,12 +52,26 @@
         #player-wrapper { position: relative; width: 100%; flex-grow: 1; background: #000; }
         iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
         
-        .tip-banner {
-            background: #222; color: #f39c12; font-size: 11px; text-align: center; padding: 5px;
+        .tip-banner { background: #222; color: #f39c12; font-size: 11px; text-align: center; padding: 5px; }
+
+        /* MÀN HÌNH KHÓA BẢO MẬT */
+        #secure-lock {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 99999; justify-content: center; align-items: center;
+            flex-direction: column; text-align: center; padding: 20px;
         }
+        .lock-card { background: #111; padding: 30px; border-radius: 12px; border: 1px solid #ff4d4d; }
     </style>
 </head>
 <body>
+
+<div id="secure-lock">
+    <div class="lock-card">
+        <h2 style="color: #ff4d4d; margin-top: 0;">🔒 TRUY CẬP BỊ TỪ CHỐI</h2>
+        <p style="color: #ccc; font-size: 14px;">Đường link đã hết hạn VIP hoặc không hợp lệ.</p>
+        <p style="color: #888; font-size: 12px; margin-bottom: 0;">Vui lòng quay lại Telegram Bot để lấy link mới chính chủ.</p>
+    </div>
+</div>
 
 <div id="main-dashboard">
     <div class="vip-card">
@@ -90,7 +92,7 @@
 
 <div id="player-view">
     <div id="status-bar">
-        <button class="btn-back" onclick="closePlayer()">◀ Thoát</button>
+        <button class="btn-back" id="back-btn-control" onclick="closePlayer()">◀ Thoát</button>
         <span id="movie-title-text" style="font-weight: 500; font-size: 13px;">Đang tải phim...</span>
         <div style="width: 50px;"></div>
     </div>
@@ -110,54 +112,83 @@
     const directVideoUrl = urlParams.get('url');
     const directMovieName = urlParams.get('name');
     const querySearch = urlParams.get('search');
+    const viewMode = urlParams.get('mode'); // Chế độ kiểm tra xem ngoài 'external'
 
-    // 1. Hệ thống đếm ngược thời gian VIP
-    if (expireTimeStr) {
-        function updateCountdown() {
-            try {
-                const cleanStr = decodeURIComponent(expireTimeStr);
-                const [datePart, timePart] = cleanStr.split(' ');
-                const [day, month, year] = datePart.split('/');
-                const [hour, minute, second] = timePart.split(':');
-                const expireDate = new Date(year, month - 1, day, hour, minute, second);
-                
-                const diff = expireDate - new Date();
-                if (diff <= 0) {
-                    document.getElementById('countdown-text').innerText = "HẾT HẠN VIP";
-                    return;
-                }
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                
-                document.getElementById('countdown-text').innerText = `${days}ngày ${hours}:${minutes}:${seconds}`;
-            } catch(e) {
-                document.getElementById('countdown-text').innerText = "Tài khoản VIP";
+    let isVipValid = false;
+
+    // 1. Hệ thống xác thực kiểm tra thời gian Token VIP mã hóa trên link
+    function verifyVipAccess() {
+        if (!expireTimeStr) return false;
+        try {
+            const cleanStr = decodeURIComponent(expireTimeStr);
+            const [datePart, timePart] = cleanStr.split(' ');
+            const [day, month, year] = datePart.split('/');
+            const [hour, minute, second] = timePart.split(':');
+            const expireDate = new Date(year, month - 1, day, hour, minute, second);
+            
+            return (expireDate - new Date()) > 0;
+        } catch(e) {
+            return false;
+        }
+    }
+
+    isVipValid = verifyVipAccess();
+
+    // 🔥 HÀNG RÀO BẢO VỆ: Nếu truy cập ở chế độ xem ngoài mà token hết hạn hoặc rỗng -> Khóa toàn bộ web lập tức
+    if (viewMode === 'external' && !isVipValid) {
+        document.getElementById('main-dashboard').style.display = 'none';
+        document.getElementById('player-view').style.display = 'none';
+        document.getElementById('secure-lock').style.display = 'flex';
+    } else {
+        // Nếu Token hợp lệ, tiến hành phân bổ luồng dữ liệu giao diện
+        if (expireTimeStr) {
+            function updateCountdown() {
+                try {
+                    const cleanStr = decodeURIComponent(expireTimeStr);
+                    const [datePart, timePart] = cleanStr.split(' ');
+                    const [day, month, year] = datePart.split('/');
+                    const [hour, minute, second] = timePart.split(':');
+                    const expireDate = new Date(year, month - 1, day, hour, minute, second);
+                    const diff = expireDate - new Date();
+                    
+                    if (diff <= 0) {
+                        document.getElementById('countdown-text').innerText = "HẾT HẠN VIP";
+                        if(viewMode === 'external') { location.reload(); } // Buộc tải lại để kích hoạt màn hình khóa
+                        return;
+                    }
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    document.getElementById('countdown-text').innerText = `${days}ngày ${hours}:${minutes}:${seconds}`;
+                } catch(e) {}
+            }
+            setInterval(updateCountdown, 1000);
+            updateCountdown();
+        }
+
+        // Kích hoạt luồng phát video
+        if (directVideoUrl) {
+            document.getElementById('main-dashboard').style.display = 'none';
+            document.getElementById('player-view').style.display = 'flex';
+            document.getElementById('video-player').src = decodeURIComponent(directVideoUrl);
+            document.getElementById('movie-title-text').innerText = directMovieName ? decodeURIComponent(directMovieName) : "Đang phát phim";
+            
+            // Nếu xem ngoài bằng trình duyệt, ẩn nút thoát về menu tìm kiếm lậu
+            if (viewMode === 'external') {
+                document.getElementById('back-btn-control').style.display = 'none';
+            }
+        } else {
+            if (querySearch) {
+                document.getElementById('search-input').value = decodeURIComponent(querySearch);
+                executeSearch(decodeURIComponent(querySearch));
+            } else {
+                executeSearch("cuoc chien thuong luu"); 
             }
         }
-        setInterval(updateCountdown, 1000);
-        updateCountdown();
-    } else {
-        document.getElementById('countdown-text').innerText = "Tài khoản VIP";
     }
 
-    // 2. Điều phối giao diện 
-    if (directVideoUrl) {
-        document.getElementById('main-dashboard').style.display = 'none';
-        document.getElementById('player-view').style.display = 'flex';
-        document.getElementById('video-player').src = decodeURIComponent(directVideoUrl);
-        document.getElementById('movie-title-text').innerText = directMovieName ? decodeURIComponent(directMovieName) : "Đang phát phim";
-    } else {
-        if (querySearch) {
-            document.getElementById('search-input').value = decodeURIComponent(querySearch);
-            executeSearch(decodeURIComponent(querySearch));
-        } else {
-            executeSearch("cuoc chien thuong luu"); 
-        }
-    }
-
-    // 3. Xử lý API tìm kiếm
+    // 3. Xử lý tìm kiếm API
     function executeSearch(keywordOverride) {
         const keyword = keywordOverride || document.getElementById('search-input').value.trim();
         if (!keyword) return;
