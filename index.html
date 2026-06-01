@@ -13,7 +13,21 @@
             margin: 0;
             padding: 15px;
         }
-        h2 { color: #e50914; text-align: center; margin: 10px 0 20px 0; }
+        h2 { color: #e50914; text-align: center; margin: 10px 0 10px 0; }
+        
+        /* BANNER ĐẾM NGƯỢC VIP THỜI GIAN THỰC */
+        .vip-countdown-box {
+            background: linear-gradient(135deg, #e50914, #9b050c);
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid #ffcc00;
+            box-shadow: 0 4px 10px rgba(229,9,20,0.4);
+        }
+        .vip-countdown-box p { margin: 0; font-size: 13px; color: #ffeb3b; font-weight: bold;}
+        #countdown-timer { font-size: 16px; color: #ffffff; font-family: monospace; display: block; margin-top: 4px; letter-spacing: 1px; }
+
         .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
         input {
             flex: 1; padding: 12px; border-radius: 25px;
@@ -26,10 +40,9 @@
             font-weight: bold; cursor: pointer;
         }
         
-        /* CẢNH BÁO BẢO MẬT KHÓA KEY */
         #lock-screen {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
-            background:#141414; z-index:99999; text-align:center; padding-top:100px; box-sizing:border-box;
+            background:#141414; z-index:99999; text-align:center; padding-top:120px; box-sizing:border-box;
         }
         .lock-card { background:#1f1f1f; padding:30px; margin:0 20px; border-radius:15px; border:1px solid #e50914; }
         
@@ -82,13 +95,19 @@
     <div id="lock-screen">
         <div class="lock-card">
             <h2 style="margin-top:0;">⚠️ TRUY CẬP BỊ TỪ CHỐI</h2>
-            <p>Vui lòng kích hoạt gói thành viên VIP trên Telegram Bot để có thể mở giao diện xem phim này.</p>
-            <p style="color:#bbb; font-size:13px;">Nhập Key kích hoạt vào ô chat của Bot trước nhé!</p>
+            <p>Tài khoản VIP chưa kích hoạt hoặc đã hết hạn dùng.</p>
+            <p style="color:#bbb; font-size:13px;">Hãy gửi mã Key VIP hợp lệ vào ô chat Bot để tiếp tục.</p>
         </div>
     </div>
 
     <div id="main-view">
         <h2>🎬 RẠP PHIM MINI APP VIP</h2>
+        
+        <div class="vip-countdown-box">
+            <p>⏱️ THỜI GIAN VIP CÒN LẠI CỦA BẠN:</p>
+            <span id="countdown-timer">Đang tính toán thời gian...</span>
+        </div>
+
         <div class="search-box">
             <input type="text" id="keyword" placeholder="Nhập tên phim cần tìm...">
             <button class="btn" onclick="searchMovie()">Tìm</button>
@@ -111,19 +130,19 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Kiểm tra Key bảo mật VIP ngay khi mở app
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const userId = urlParams.get('user_id');
+            const expireStr = urlParams.get('expire'); // Lấy chuỗi định dạng dạng: DD/MM/YYYY HH:MM:SS
             
-            // Nếu không có tham số user_id từ nút bấm Telegram truyền sang -> Chặn hiển thị phim
-            if (!userId) {
-                document.getElementById('main-view').style.display = 'none';
-                document.getElementById('lock-screen').style.display = 'block';
+            if (!userId || !expireStr) {
+                hienThiManHinhKhoa();
                 return;
             }
 
-            // Tiến hành nhận từ khóa nếu có tìm kiếm đồng bộ từ chat
+            // Chạy tính năng đếm lùi thời gian thực
+            khoiChayDemNguoc(decodeURIComponent(expireStr));
+
             const searchKw = urlParams.get('search');
             if (searchKw) {
                 document.getElementById('keyword').value = decodeURIComponent(searchKw);
@@ -131,16 +150,53 @@
             }
         }
 
+        // --- HÀM TÍNH TOÁN VÀ ĐẾM LÙI THEO TỪNG GIÂY ---
+        function khoiChayDemNguoc(targetDateStr) {
+            // targetDateStr có cấu trúc dạng: "31/12/2026 18:30:00" -> cần bóc tách để tạo Date Object chuẩn Javascript
+            const parts = targetDateStr.split(" ");
+            const dateParts = parts[0].split("/");
+            const timeParts = parts[1].split(":");
+            
+            // Định dạng New Date: (Year, MonthIndex(0-11), Day, Hour, Minute, Second)
+            const targetDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0], timeParts[0], timeParts[1], timeParts[2]).getTime();
+
+            const timerInterval = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+
+                if (distance < 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById("countdown-timer").innerHTML = "ĐÃ HẾT HẠN GÓI VIP!";
+                    hienThiManHinhKhoa();
+                    return;
+                }
+
+                // Tính toán Ngày, Giờ, Phút, Giây còn lại
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                // Hiển thị trực quan ra màn hình
+                document.getElementById("countdown-timer").innerHTML = 
+                    `${days} ngày, ${hours.toString().padStart(2, '0')} giờ, ${minutes.toString().padStart(2, '0')} phút, ${seconds.toString().padStart(2, '0')} giây`;
+            }, 1000); // 1000ms = 1 giây chạy lại một lần
+        }
+
+        function hienThiManHinhKhoa() {
+            document.getElementById('main-view').style.display = 'none';
+            document.getElementById('detail-view').style.display = 'none';
+            document.getElementById('player-view').style.display = 'none';
+            document.getElementById('lock-screen').style.display = 'block';
+        }
+
         async function searchMovie() {
             const kw = document.getElementById('keyword').value.trim();
             if(!kw) return;
-            
             document.getElementById('result-list').innerHTML = "<p style='grid-column: span 2; text-align:center;'>🔍 Đang tìm kiếm kho phim...</p>";
-            
             try {
                 const res = await fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=30`);
                 const data = await res.json();
-                
                 let html = '';
                 if(data.status === 'success' && data.data.items && data.data.items.length > 0) {
                     data.data.items.forEach(phim => {
@@ -156,7 +212,7 @@
                 }
                 document.getElementById('result-list').innerHTML = html;
             } catch (e) {
-                document.getElementById('result-list').innerHTML = '<p style="grid-column: span 2; text-align:center;">⚠️ Lỗi hệ thống dữ liệu API.</p>';
+                document.getElementById('result-list').innerHTML = '<p style="grid-column: span 2; text-align:center;">⚠️ Lỗi kết nối hệ thống.</p>';
             }
         }
 
@@ -164,11 +220,7 @@
             try {
                 const res = await fetch(`https://phimapi.com/phim/${slug}`);
                 const data = await res.json();
-                
-                if(!data || !data.movie) {
-                    alert('Không tìm thấy thông tin chi tiết phim này!');
-                    return;
-                }
+                if(!data || !data.movie) return;
 
                 const movie = data.movie;
                 let infoHtml = `
@@ -178,64 +230,40 @@
                             <h3>${movie.name}</h3>
                             <p>🗓️ Năm: ${movie.year}</p>
                             <p>⏱️ Thời lượng: ${movie.time || 'Đang cập nhật'}</p>
-                            <p>🌐 Ngôn ngữ: ${movie.lang}</p>
                         </div>
                     </div>
-                    <p style="font-size: 13px; line-height: 1.6; color: #ccc; margin-bottom: 20px;">
-                        <strong>Tóm tắt:</strong> ${movie.content ? movie.content.substring(0, 250) : 'Chưa có tóm tắt.'}...
-                    </p>
+                    <p style="font-size: 13px; line-height: 1.6; color: #ccc;"><strong>Tóm tắt:</strong> ${movie.content ? movie.content.substring(0, 200) : '...'}...</p>
                     <hr style="border: 0.5px solid #222; margin: 15px 0;">
                 `;
                 document.getElementById('movie-info-box').innerHTML = infoHtml;
 
-                let epBoxHtml = '<h4 style="margin: 5px 0 15px 0; color: #e50914;">🍿 DANH SÁCH TẬP PHIM:</h4>';
-                
+                let epBoxHtml = '<h4 style="color: #e50914;">🍿 DANH SÁCH TẬP:</h4>';
                 if (data.episodes && data.episodes.length > 0) {
                     data.episodes.forEach(server => {
                         if(server.server_data && server.server_data.length > 0) {
-                            epBoxHtml += `<div class="server-title">🚀 NGUỒN PHÁT: ${server.server_name.toUpperCase()}</div>`;
-                            epBoxHtml += `<div class="episode-list">`;
-                            
+                            epBoxHtml += `<div class="server-title">🚀 NGUỒN: ${server.server_name.toUpperCase()}</div><div class="episode-list">`;
                             server.server_data.forEach(tap => {
                                 if(tap.link_m3u8) {
-                                    epBoxHtml += `
-                                        <button class="episode-btn" onclick="openPlayerView('${tap.link_m3u8}')">
-                                            ${tap.name}
-                                        </button>
-                                    `;
+                                    epBoxHtml += `<button class="episode-btn" onclick="openPlayerView('${tap.link_m3u8}')">${tap.name}</button>`;
                                 }
                             });
                             epBoxHtml += `</div>`;
                         }
                     });
                 } else {
-                    epBoxHtml += '<p style="color: #999; font-size:13px;">Phim hiện chưa có tập trực tuyến.</p>';
+                    epBoxHtml += '<p>Chưa có tập trực tuyến.</p>';
                 }
-                
                 document.getElementById('episode-box').innerHTML = epBoxHtml;
                 document.getElementById('detail-view').style.display = 'block';
-
-            } catch (e) {
-                console.error(e);
-                alert('Có lỗi xảy ra khi tải dữ liệu tập phim!');
-            }
+            } catch (e) { alert('Lỗi tải tập phim!'); }
         }
 
         function openPlayerView(linkVideo) {
-            const playerUrl = `https://player.phimapi.com/player/?url=${encodeURIComponent(linkVideo)}`;
-            document.getElementById('video-iframe').src = playerUrl;
+            document.getElementById('video-iframe').src = `https://player.phimapi.com/player/?url=${encodeURIComponent(linkVideo)}`;
             document.getElementById('player-view').style.display = 'block';
         }
-
-        function closeDetailView() {
-            document.getElementById('detail-view').style.display = 'none';
-        }
-
-        function closePlayerView() {
-            document.getElementById('player-view').style.display = 'none';
-            document.getElementById('video-iframe').src = '';
-        }
+        function closeDetailView() { document.getElementById('detail-view').style.display = 'none'; }
+        function closePlayerView() { document.getElementById('player-view').style.display = 'none'; document.getElementById('video-iframe').src = ''; }
     </script>
 </body>
 </html>
-
