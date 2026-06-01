@@ -3,32 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini App Được Python Điều Khiển</title>
+    <title>Rạp Phim Mini App - Bản Chuẩn</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #141414; color: white; margin: 0; padding: 15px; }
-        h2 { color: #e50914; text-align: center; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #141414;
+            color: #ffffff;
+            margin: 0;
+            padding: 15px;
+        }
+        h2 { color: #e50914; text-align: center; margin: 10px 0 20px 0; }
         .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
-        input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #333; background-color: #222; color: white; outline: none; }
-        .btn { padding: 12px 20px; background-color: #e50914; color: white; border: none; border-radius: 25px; font-weight: bold; cursor: pointer; }
+        input {
+            flex: 1; padding: 12px; border-radius: 25px;
+            border: 1px solid #333; background-color: #222;
+            color: white; outline: none; font-size: 14px;
+        }
+        .btn {
+            padding: 12px 20px; background-color: #e50914;
+            color: white; border: none; border-radius: 25px;
+            font-weight: bold; cursor: pointer;
+        }
+        
+        /* GIAO DIỆN TRANG CHỦ / TÌM KIẾM */
         .movie-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .movie-item { background-color: #1f1f1f; border-radius: 10px; overflow: hidden; text-align: center; padding-bottom: 10px; cursor: pointer; }
+        .movie-item {
+            background-color: #1f1f1f; border-radius: 10px;
+            overflow: hidden; text-align: center; padding-bottom: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); cursor: pointer;
+        }
         .movie-item img { width: 100%; height: 220px; object-fit: cover; }
-        .movie-title { font-size: 13px; padding: 8px 5px 0 5px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        #detail-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #141414; z-index: 5000; overflow-y: auto; padding: 20px; box-sizing: border-box; }
+        .movie-title {
+            font-size: 13px; padding: 8px 5px 0 5px; font-weight: bold;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        
+        /* GIAO DIỆN XEM CHI TIẾT & CHỌN TẬP */
+        #detail-view {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: #141414;
+            z-index: 5000; overflow-y: auto; padding: 20px; box-sizing: border-box;
+        }
+        .detail-header { display: flex; gap: 15px; margin-bottom: 20px; margin-top: 40px; }
+        .detail-header img { width: 110px; height: 160px; object-fit: cover; border-radius: 8px; }
+        .detail-info h3 { margin: 0 0 10px 0; color: #e50914; font-size: 18px; }
+        .detail-info p { font-size: 13px; color: #bbb; margin: 5px 0; }
         .server-title { color: #00ffcc; font-size: 14px; margin: 15px 0 8px 0; font-weight: bold; }
+        
         .episode-list { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; }
-        .episode-btn { background-color: #2a2a2a; color: white; padding: 10px 15px; border-radius: 8px; font-size: 13px; border: 1px solid #444; cursor: pointer; }
-        .back-btn { background-color: #333; margin-bottom: 20px; padding: 8px 15px; }
-        #player-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; }
-        .close-player-btn { position: absolute; top: 15px; right: 15px; background: red; color: white; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; }
+        .episode-btn {
+            background-color: #2a2a2a; color: white; padding: 10px 18px;
+            border-radius: 8px; font-size: 13px; border: 1px solid #444; cursor: pointer;
+        }
+        .episode-btn:active { background-color: #e50914; border-color: #e50914; }
+        .back-btn { background-color: #333; position: absolute; top: 15px; left: 20px; padding: 8px 15px; }
+
+        /* TRÌNH PHÁT VIDEO Fullscreen */
+        #player-view {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: #000; z-index: 9999;
+        }
+        .close-player-btn {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(229, 9, 20, 0.9); color: white;
+            border: none; padding: 8px 15px; border-radius: 20px;
+            font-weight: bold; z-index: 10001; cursor: pointer;
+        }
         iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
 
     <div id="main-view">
-        <h2>🎬 RẠP PHIM MINI APP (PYTHON SERVER)</h2>
+        <h2>🎬 RẠP PHIM MINI APP</h2>
         <div class="search-box">
             <input type="text" id="keyword" placeholder="Nhập tên phim cần tìm...">
             <button class="btn" onclick="searchMovie()">Tìm</button>
@@ -43,17 +91,15 @@
     </div>
 
     <div id="player-view">
-        <button class="close-player-btn" onclick="closePlayerView()">❌ Đóng</button>
+        <button class="close-player-btn" onclick="closePlayerView()">❌ Đóng phim</button>
         <iframe id="video-iframe" src="" allowfullscreen></iframe>
     </div>
 
     <script>
-        // ĐỊA CHỈ SERVER PYTHON CỦA BẠN (Phải khớp với file bot.py)
-        const PYTHON_SERVER = "http://localhost:5000";
-
         const tg = window.Telegram.WebApp;
-        if(tg) tg.expand();
+        tg.expand(); // Mở rộng tối đa giao diện Mini App
 
+        // Nhận từ khóa tự động nếu chuyển từ ô chat sang
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const searchKw = urlParams.get('search');
@@ -63,62 +109,121 @@
             }
         }
 
+        // Hàm xử lý tìm kiếm phim từ trang chủ Mini App
         async function searchMovie() {
             const kw = document.getElementById('keyword').value.trim();
             if(!kw) return;
-            document.getElementById('result-list').innerHTML = "<p style='text-align:center; width:100%; grid-column:span 2;'>🔍 Kết nối qua Python Server...</p>";
+            
+            document.getElementById('result-list').innerHTML = "<p style='grid-column: span 2; text-align:center;'>🔍 Đang tìm kiếm kho phim...</p>";
             
             try {
-                // 💥 GỌI ĐẾN PYTHON ĐỂ LẤY DỮ LIỆU
-                const res = await fetch(`${PYTHON_SERVER}/api/search?keyword=${encodeURIComponent(kw)}`);
+                const res = await fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=30`);
                 const data = await res.json();
+                
                 let html = '';
-                if(data.status === 'success' && data.data.items.length > 0) {
+                if(data.status === 'success' && data.data.items && data.data.items.length > 0) {
                     data.data.items.forEach(phim => {
-                        let imgUrl = phim.thumb_url.startsWith('http') ? phim.thumb_url : `https://img.phimapi.com/${phim.thumb_url}`;
+                        // Gọi hàm hiển thị chi tiết loadMovieDetail() khi click
                         html += `
                             <div class="movie-item" onclick="loadMovieDetail('${phim.slug}')">
-                                <img src="${imgUrl}">
+                                <img src="https://img.phimapi.com/${phim.thumb_url}" onerror="this.src='https://via.placeholder.com/150x220?text=No+Poster'">
                                 <div class="movie-title">${phim.name}</div>
                             </div>
                         `;
                     });
-                } else { html = '<p style="grid-column:span 2; text-align:center;">❌ Không tìm thấy phim!</p>'; }
+                } else {
+                    html = '<p style="grid-column: span 2; text-align:center;">❌ Không tìm thấy phim phù hợp!</p>';
+                }
                 document.getElementById('result-list').innerHTML = html;
-            } catch (e) { document.getElementById('result-list').innerHTML = '<p style="grid-column:span 2; text-align:center;">❌ Lỗi: Bạn chưa bật file Python ở máy tính!</p>'; }
+            } catch (e) {
+                document.getElementById('result-list').innerHTML = '<p style="grid-column: span 2; text-align:center;">⚠️ Lỗi hệ thống dữ liệu API.</p>';
+            }
         }
 
+        // Hàm gọi API chi tiết để bóc tách thông tin và TỪNG TẬP PHIM
         async function loadMovieDetail(slug) {
             try {
-                // 💥 GỌI ĐẾN PYTHON ĐỂ LẤY CHI TIẾT TẬP
-                const res = await fetch(`${PYTHON_SERVER}/api/detail?slug=${slug}`);
+                // Gọi API chi tiết phim riêng để lấy được object 'episodes' đầy đủ tập
+                const res = await fetch(`https://phimapi.com/phim/${slug}`);
                 const data = await res.json();
+                
+                if(!data || !data.movie) {
+                    alert('Không tìm thấy thông tin chi tiết phim này!');
+                    return;
+                }
+
                 const movie = data.movie;
                 
-                document.getElementById('movie-info-box').innerHTML = `<h3>${movie.name}</h3><p>🗓️ Năm: ${movie.year}</p><hr style="border: 0.5px solid #222;">`;
+                // 1. Đổ dữ liệu nội dung, poster, năm sản xuất vào hộp thông tin
+                let infoHtml = `
+                    <div class="detail-header">
+                        <img src="${movie.thumb_url}" onerror="this.src='https://via.placeholder.com/110x160'">
+                        <div class="detail-info">
+                            <h3>${movie.name}</h3>
+                            <p>🗓️ Năm: ${movie.year}</p>
+                            <p>⏱️ Thời lượng: ${movie.time || 'Đang cập nhật'}</p>
+                            <p>🌐 Ngôn ngữ: ${movie.lang}</p>
+                        </div>
+                    </div>
+                    <p style="font-size: 13px; line-height: 1.6; color: #ccc; margin-bottom: 20px;">
+                        <strong>Tóm tắt:</strong> ${movie.content ? movie.content.substring(0, 250) : 'Chưa có tóm tắt.'}...
+                    </p>
+                    <hr style="border: 0.5px solid #222; margin: 15px 0;">
+                `;
+                document.getElementById('movie-info-box').innerHTML = infoHtml;
 
-                let epBoxHtml = '<h4 style="color: #e50914;">🍿 CHỌN TẬP PHIM:</h4>';
+                // 2. Tạo giao diện danh sách chọn tập phim theo từng nguồn (Server)
+                let epBoxHtml = '<h4 style="margin: 5px 0 15px 0; color: #e50914;">🍿 DANH SÁCH TẬP PHIM:</h4>';
+                
                 if (data.episodes && data.episodes.length > 0) {
                     data.episodes.forEach(server => {
-                        epBoxHtml += `<div class="server-title">🚀 ${server.server_name.toUpperCase()}</div><div class="episode-list">`;
-                        server.server_data.forEach(tap => {
-                            epBoxHtml += `<button class="episode-btn" onclick="openPlayerView('${tap.link_m3u8}')">${tap.name}</button>`;
-                        });
-                        epBoxHtml += `</div>`;
+                        if(server.server_data && server.server_data.length > 0) {
+                            epBoxHtml += `<div class="server-title">🚀 NGUỒN PHÁT: ${server.server_name.toUpperCase()}</div>`;
+                            epBoxHtml += `<div class="episode-list">`;
+                            
+                            // Tạo nút bấm riêng biệt cho từng tập phim
+                            server.server_data.forEach(tap => {
+                                if(tap.link_m3u8) {
+                                    epBoxHtml += `
+                                        <button class="episode-btn" onclick="openPlayerView('${tap.link_m3u8}')">
+                                            ${tap.name}
+                                        </button>
+                                    `;
+                                }
+                            });
+                            epBoxHtml += `</div>`;
+                        }
                     });
-                } else { epBoxHtml += '<p>Chưa có tập.</p>'; }
+                } else {
+                    epBoxHtml += '<p style="color: #999; font-size:13px;">Phim hiện chưa có tập trực tuyến.</p>';
+                }
                 
                 document.getElementById('episode-box').innerHTML = epBoxHtml;
+                
+                // Hiển thị màn hình chọn tập lên đè lên màn hình tìm kiếm
                 document.getElementById('detail-view').style.display = 'block';
-            } catch (e) { alert('Không kết nối được Python Server!'); }
+
+            } catch (e) {
+                console.error(e);
+                alert('Có lỗi xảy ra khi tải dữ liệu tập phim!');
+            }
         }
 
+        // Mở trình phát phim khi nhấn trúng một nút Tập phim cụ thể
         function openPlayerView(linkVideo) {
-            document.getElementById('video-iframe').src = `https://player.phimapi.com/player/?url=${encodeURIComponent(linkVideo)}`;
+            const playerUrl = `https://player.phimapi.com/player/?url=${encodeURIComponent(linkVideo)}`;
+            document.getElementById('video-iframe').src = playerUrl;
             document.getElementById('player-view').style.display = 'block';
         }
-        function closeDetailView() { document.getElementById('detail-view').style.display = 'none'; }
-        function closePlayerView() { document.getElementById('player-view').style.display = 'none'; document.getElementById('video-iframe').src = ''; }
+
+        function closeDetailView() {
+            document.getElementById('detail-view').style.display = 'none';
+        }
+
+        function closePlayerView() {
+            document.getElementById('player-view').style.display = 'none';
+            document.getElementById('video-iframe').src = ''; // Dừng phát video ngầm
+        }
     </script>
 </body>
 </html>
