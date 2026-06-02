@@ -1,28 +1,27 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nhận Key VIP</title>
     <style>
-        body { background: #0b0b0c; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; color: white; }
-        .card { background: rgba(20, 20, 20, 0.9); padding: 40px; border-radius: 25px; text-align: center; border: 1px solid #ff0022; box-shadow: 0 0 20px rgba(255, 0, 34, 0.3); width: 85%; max-width: 400px; }
-        #key { font-size: 30px; font-weight: 800; color: #ff0022; margin: 20px 0; letter-spacing: 3px; }
-        .btn { background: #ff0022; padding: 15px; border-radius: 50px; cursor: pointer; font-weight: bold; }
+        body { background: #0b0b0c; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
+        .box { background: rgba(255,255,255,0.05); padding: 40px; border-radius: 20px; text-align: center; border: 1px solid #ff0022; width: 300px; }
+        #key { font-size: 28px; color: #ff0022; margin: 20px 0; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="card" id="app">
-        <h2>Đang kiểm tra xác thực...</h2>
-    </div>
+    <div class="box" id="app"><h2>Đang kiểm tra...</h2></div>
     <script>
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('verified') === 'true') {
-            fetch('https://script.google.com/macros/s/AKfycbyVJUuY3mUd5Qm4oqmvclj5lJ4NkjTYsw25eRJU7L0X89sfljRcbL1yf4zKyO4Q2iL6/exec').then(r => r.text()).then(k => {
-                document.getElementById('app').innerHTML = `<h2>🎁 MÃ CỦA BẠN</h2><div id="key">${k}</div><div class="btn" onclick="navigator.clipboard.writeText('${k}'); alert('Đã copy!');">COPY MÃ NGAY</div>`;
-            });
+        const token = new URLSearchParams(window.location.search).get('token');
+        if (!token) {
+            document.getElementById('app').innerHTML = "<h1>❌ Truy cập trái phép!</h1>";
         } else {
-            document.getElementById('app').innerHTML = `<h2 style="color:red;">❌ TRUY CẬP LỖI</h2><p>Vui lòng vượt link trong Bot để lấy mã!</p>`;
+            // Tự hủy trang sau 5 phút (300,000ms)
+            setTimeout(() => { document.body.innerHTML = "<h1>⚠️ Link đã hết hạn!</h1>"; }, 300000);
+            
+            fetch('https://script.google.com/macros/s/AKfycbw66ToOoxvaPrEfVxG-0G5Bf757oLAaVyZ5eq92Whdi1Klq6IpCBlt5d28ZiB9D4ZGx/exec?token=' + token)
+            .then(r => r.text()).then(k => {
+                document.getElementById('app').innerHTML = `<h3>MÃ CỦA BẠN</h3><div id="key">${k}</div><button onclick="navigator.clipboard.writeText('${k}'); alert('Đã copy!');">COPY MÃ</button>`;
+            });
         }
     </script>
 </body>
