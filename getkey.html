@@ -18,7 +18,7 @@
             // Tự hủy trang sau 5 phút (300,000ms)
             setTimeout(() => { document.body.innerHTML = "<h1>⚠️ Link đã hết hạn!</h1>"; }, 300000);
             
-            fetch('https://script.google.com/macros/s/AKfycbw66ToOoxvaPrEfVxG-0G5Bf757oLAaVyZ5eq92Whdi1Klq6IpCBlt5d28ZiB9D4ZGx/exec?token=' + token)
+            fetch('https://script.google.com/macros/s/AKfycbx-zJMlDnPVF_U-vPIomzgEnOuCvCwGNlrymnTRND9GVpOeP6VXwZqnnwZ0dKAHMkYb/exec?token=' + token)
             .then(r => r.text()).then(k => {
                 document.getElementById('app').innerHTML = `<h3>MÃ CỦA BẠN</h3><div id="key">${k}</div><button onclick="navigator.clipboard.writeText('${k}'); alert('Đã copy!');">COPY MÃ</button>`;
             });
