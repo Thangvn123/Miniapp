@@ -339,6 +339,24 @@
             }
         }
 
+        // Thay URL_API_SHEET bằng link Web App của bạn
+const URL_API_SHEET = "https://script.google.com/macros/s/AKfycbyKoGbeLI3sX5MHd9RgEGabv6oLx3v524zHiUU9uKmewgWDPtY2z8l7B7-TFUxhPh7L/exec"; 
+const userId = new URLSearchParams(window.location.search).get('user_id');
+
+async function checkVipAccess() {
+    const response = await fetch(`${URL_API_SHEET}?action=checkUser&user_id=${userId}`);
+    const status = await response.text();
+    
+    if (status !== "active") {
+        document.body.innerHTML = "<h1>⚠️ TRUY CẬP BỊ TỪ CHỐI</h1><p>Vui lòng kích hoạt VIP trong Bot.</p>";
+    } else {
+        // Tiếp tục hiển thị nội dung phim nếu là VIP
+        console.log("VIP Access Granted");
+    }
+}
+checkVipAccess();
+        
+
         function khoiChayDemNguoc(targetDateStr) {
             const parts = targetDateStr.split(" ");
             const dateParts = parts[0].split("/");
