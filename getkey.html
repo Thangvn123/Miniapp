@@ -1,0 +1,19 @@
+<div style="text-align:center; padding:50px;">
+    <h1>🎁 MÃ KEY CỦA BẠN</h1>
+    <h2 id="key" style="color:red;">Đang khởi tạo mã...</h2>
+    <button onclick="copy()">COPY MÃ NÀY</button>
+</div>
+
+<script>
+    // Thay LINK_API_SHEET bằng link bạn vừa Deploy
+    fetch('https://script.google.com/macros/s/AKfycbyj1AjR4HgKW4xP409TumYyKJgL66Bpm3vhlNRR2PCzE2-qGi8X7x8ze4S9YhnndJ9q/exec').then(res => res.text()).then(key => {
+        document.getElementById('key').innerText = key;
+    });
+    
+    function copy() {
+        var text = document.getElementById('key').innerText;
+        navigator.clipboard.writeText(text);
+        alert("Đã copy!");
+    }
+</script>
+
