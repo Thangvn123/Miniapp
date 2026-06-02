@@ -320,40 +320,25 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        window.onload = function() {
+        const URL_API_SHEET = "LINK_GOOGLE_APPS_SCRIPT_CUA_BAN"; // Dán link của bạn vào đây
+
+        window.onload = async function() {
             const urlParams = new URLSearchParams(window.location.search);
             const userId = urlParams.get('user_id');
             const expireStr = urlParams.get('expire');
             
-            if (!userId || !expireStr) {
-                hienThiManHinhKhoa();
-                return;
+            // Kiểm tra VIP với Google Sheet trước khi hiển thị
+            const response = await fetch(`${URL_API_SHEET}?action=checkUser&user_id=${userId}`);
+            const status = await response.text();
+            
+            if (status !== "active") {
+                document.getElementById('lock-screen').style.display = 'block';
+                document.getElementById('main-view').style.display = 'none';
+            } else {
+                khoiChayDemNguoc(decodeURIComponent(expireStr));
             }
-
-            khoiChayDemNguoc(decodeURIComponent(expireStr));
-
-            const searchKw = urlParams.get('search');
-            if (searchKw) {
-                document.getElementById('keyword').value = decodeURIComponent(searchKw);
-                searchMovie();
-            }
-        }
-
-        // Thay URL_API_SHEET bằng link Web App của bạn
-const URL_API_SHEET = "https://script.google.com/macros/s/AKfycbyKoGbeLI3sX5MHd9RgEGabv6oLx3v524zHiUU9uKmewgWDPtY2z8l7B7-TFUxhPh7L/exec"; 
-const userId = new URLSearchParams(window.location.search).get('user_id');
-
-async function checkVipAccess() {
-    const response = await fetch(`${URL_API_SHEET}?action=checkUser&user_id=${userId}`);
-    const status = await response.text();
-    
-    if (status !== "active") {
-        document.body.innerHTML = "<h1>⚠️ TRUY CẬP BỊ TỪ CHỐI</h1><p>Vui lòng kích hoạt VIP trong Bot.</p>";
-    } else {
-        // Tiếp tục hiển thị nội dung phim nếu là VIP
-        console.log("VIP Access Granted");
-    }
-}
+                    }
+ 
 checkVipAccess();
         
 
