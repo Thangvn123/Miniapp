@@ -1,19 +1,29 @@
-<div style="text-align:center; padding:50px;">
-    <h1>🎁 MÃ KEY CỦA BẠN</h1>
-    <h2 id="key" style="color:red;">Đang khởi tạo mã...</h2>
-    <button onclick="copy()">COPY MÃ NÀY</button>
-</div>
-
-<script>
-    // Thay LINK_API_SHEET bằng link bạn vừa Deploy
-    fetch('https://script.google.com/macros/s/AKfycbyVJUuY3mUd5Qm4oqmvclj5lJ4NkjTYsw25eRJU7L0X89sfljRcbL1yf4zKyO4Q2iL6/exec').then(res => res.text()).then(key => {
-        document.getElementById('key').innerText = key;
-    });
-    
-    function copy() {
-        var text = document.getElementById('key').innerText;
-        navigator.clipboard.writeText(text);
-        alert("Đã copy!");
-    }
-</script>
-
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhận Key VIP</title>
+    <style>
+        body { background: #0b0b0c; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; color: white; }
+        .card { background: rgba(20, 20, 20, 0.9); padding: 40px; border-radius: 25px; text-align: center; border: 1px solid #ff0022; box-shadow: 0 0 20px rgba(255, 0, 34, 0.3); width: 85%; max-width: 400px; }
+        #key { font-size: 30px; font-weight: 800; color: #ff0022; margin: 20px 0; letter-spacing: 3px; }
+        .btn { background: #ff0022; padding: 15px; border-radius: 50px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card" id="app">
+        <h2>Đang kiểm tra xác thực...</h2>
+    </div>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('verified') === 'true') {
+            fetch('https://script.google.com/macros/s/AKfycbyVJUuY3mUd5Qm4oqmvclj5lJ4NkjTYsw25eRJU7L0X89sfljRcbL1yf4zKyO4Q2iL6/exec').then(r => r.text()).then(k => {
+                document.getElementById('app').innerHTML = `<h2>🎁 MÃ CỦA BẠN</h2><div id="key">${k}</div><div class="btn" onclick="navigator.clipboard.writeText('${k}'); alert('Đã copy!');">COPY MÃ NGAY</div>`;
+            });
+        } else {
+            document.getElementById('app').innerHTML = `<h2 style="color:red;">❌ TRUY CẬP LỖI</h2><p>Vui lòng vượt link trong Bot để lấy mã!</p>`;
+        }
+    </script>
+</body>
+</html>
