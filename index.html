@@ -200,7 +200,7 @@
         .movie-poster-wrapper { position: relative; width: 100%; height: 230px; background-color: #27272a; }
         .movie-item img { width: 100%; height: 100%; object-fit: cover; }
         .movie-year-badge { position: absolute; top: 8px; left: 8px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); color: #ff0022; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
-        .movie-title { font-size: 12px; padding: 8px 6px; font-weight: 600; line-height: 1.4; color: #f4f4f5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 34px; text-align: left; }
+        .movie-title { font-size: 12px; padding: 8px 6px; font-weight: 600; line-height: 1.4; color: #f4f4f4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 34px; text-align: left; }
 
         /* MÀN HÌNH KHÓA BẢO MẬT TUYỆT ĐỐI */
         #lock-screen { 
@@ -230,6 +230,16 @@
         iframe { width: 100%; height: 100%; border: none; }
         .player-episodes-bar { background: #141414; padding: 12px; overflow-x: auto; white-space: nowrap; border-top: 1px solid #222; }
         .player-ep-btn { display: inline-block; background: #27272a; color: white; padding: 8px 16px; border-radius: 8px; margin-right: 8px; font-size: 12px; font-weight: bold; border: 1px solid #3f3f46; }
+        
+        /* CSS bổ sung để thanh chọn server cuộn ngang nếu quá dài */
+        .server-tabs-container {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 4px 0;
+            margin-bottom: 10px;
+        }
+        .server-tabs-container::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
@@ -244,7 +254,7 @@
 
     <div id="main-view">
         <div class="header-bar">
-            <a href="#" class="brand-logo" onclick="location.reload()">NETFLIX</a>
+            <a href="#" class="brand-logo" onclick="location.reload()">Premium Cinema</a>
         </div>
 
         <div class="filter-menu">
@@ -316,7 +326,8 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        let currentEpisodesData = [];
+        let currentMovieEpisodes = []; // Lưu trữ toàn bộ các server nhận về từ API
+        let currentEpisodesData = [];  // Lưu trữ tập phim của server đang được chọn
         let currentMovieName = "";
 
         window.onload = function() {
@@ -324,15 +335,12 @@
             const userId = urlParams.get('user_id');
             const expireStr = urlParams.get('expire');
             
-            // LỚP BẢO MẬT: Chặn truy cập nếu không thỏa điều kiện
             if (!userId || !expireStr) {
                 hienThiManHinhKhoa();
                 return;
             }
 
             khoiChayDemNguoc(decodeURIComponent(expireStr));
-            
-            // Tải dữ liệu mặc định lên trang chủ
             taiPhimTrangChu();
 
             const searchKw = urlParams.get('search');
@@ -380,15 +388,12 @@
             }
         }
 
-        // TỰ ĐỘNG PHÁT TRIỂN NỘI DUNG ĐỀ XUẤT TRANG CHỦ
         async function taiPhimTrangChu() {
             try {
-                // Lấy danh sách phim mới cập nhật nhất từ API để làm dữ liệu trang chủ
                 const res = await fetch('https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=1');
                 const data = await res.json();
                 
                 if(data.items && data.items.length > 0) {
-                    // Thiết lập ngẫu nhiên 1 phim bom tấn làm Hero Banner ở đầu trang
                     const randomIndex = Math.floor(Math.random() * Math.min(data.items.length, 6));
                     const heroMovie = data.items[randomIndex];
                     
@@ -397,7 +402,6 @@
                     document.getElementById('hero-tags').innerText = `${heroMovie.origin_name} • Năm công chiếu: ${heroMovie.year}`;
                     document.getElementById('hero-play-btn').setAttribute('onclick', `loadMovieDetail('${heroMovie.slug}')`);
 
-                    // Điền dữ liệu vào slider "Thịnh Hành"
                     let sliderHtml = '';
                     data.items.forEach(phim => {
                         sliderHtml += `
@@ -412,7 +416,6 @@
                     });
                     document.getElementById('slider-trending').innerHTML = sliderHtml;
 
-                    // Điền dữ liệu ngẫu nhiên làm danh sách gợi ý phía dưới dạng lưới 2 cột
                     let gridHtml = '';
                     data.items.slice().reverse().forEach(phim => {
                         gridHtml += `
@@ -430,7 +433,6 @@
             } catch(e) { console.log("Lỗi tải trang chủ đề xuất:", e); }
         }
 
-        // TÌM KIẾM PHIM THEO TỪ KHÓA
         async function searchMovie() {
             const kw = document.getElementById('keyword').value.trim();
             if(!kw) return;
@@ -468,7 +470,6 @@
             }
         }
 
-        // BỘ LỌC THỂ LOẠI (DROPDOWN CHỌN)
         async function locTheLoai(slugTheLoai) {
             if(!slugTheLoai) { taiPhimTrangChu(); return; }
             hienThiLoadingDynamic();
@@ -479,7 +480,6 @@
             } catch (e) { bieuThiLoiDynamic(); }
         }
 
-        // BỘ LỌC SERIES / PHIM LẺ / HOẠT HÌNH (BUTTONS)
         async function locLoaiPhim(loai) {
             hienThiLoadingDynamic();
             try {
@@ -518,13 +518,13 @@
         }
 
         function hienThiLoadingDynamic() {
-            document.getElementById('dynamic-content').innerHTML = "<p style='text-align:center; color:#ff0022; padding:50px;'>🔍 Đang đồng bộ kho phim Netflix...</p>";
+            document.getElementById('dynamic-content').innerHTML = "<p style='text-align:center; color:#ff0022; padding:50px;'>🔍 Đang đồng bộ kho phim...</p>";
         }
         function bieuThiLoiDynamic() {
             document.getElementById('dynamic-content').innerHTML = "<p style='text-align:center; color:#ff0022; padding:50px;'>⚠️ Thao tác thất bại. Lỗi đường truyền API.</p>";
         }
 
-        // TẢI CHI TIẾT PHIM
+        // TẢI CHI TIẾT PHIM (ĐÃ FIX: HỖ TRỢ ĐA SERVER THUYẾT MINH/LỒNG TIẾNG/VIETSUB)
         async function loadMovieDetail(slug) {
             try {
                 const res = await fetch(`https://phimapi.com/phim/${slug}`);
@@ -539,7 +539,7 @@
                         <img src="${movie.thumb_url}" onerror="this.src='https://via.placeholder.com/110x160'">
                         <div class="detail-info">
                             <h3>${movie.name}</h3>
-                            <p>Annum: <span style="color:white; font-weight:600;">${movie.year}</span></p>
+                            <p>Năm: <span style="color:white; font-weight:600;">${movie.year}</span></p>
                             <p>Thời lượng: <span style="color:white; font-weight:600;">${movie.time || 'N/A'}</span></p>
                             <p>Tình trạng: <span style="color:#ff0022; font-weight:600;">${movie.episode_current}</span></p>
                         </div>
@@ -548,27 +548,68 @@
                 `;
                 document.getElementById('movie-info-box').innerHTML = infoHtml;
 
-                let epBoxHtml = '';
-                currentEpisodesData = [];
+                if (data.episodes && data.episodes.length > 0) {
+                    currentMovieEpisodes = data.episodes; // Lưu lại danh sách tất cả các server trả về
 
-                if (data.episodes && data.episodes.length > 0 && data.episodes[0].server_data) {
-                    const server = data.episodes[0];
-                    currentEpisodesData = server.server_data;
-
-                    epBoxHtml += `<div class="server-title">CHỌN TẬP PHIM (${server.server_name.toUpperCase()})</div><div class="episode-list">`;
-                    currentEpisodesData.forEach((tap, index) => {
-                        epBoxHtml += `<button id="ep-btn-${index}" class="episode-btn" onclick="openPlayerView(${index})">${tap.name}</button>`;
+                    // Tạo thanh công cụ chọn Server đa năng
+                    let serverHtml = `<div class="server-title">CHỌN PHIÊN BẢN (SERVER)</div>`;
+                    serverHtml += `<div class="server-tabs-container">`;
+                    
+                    currentMovieEpisodes.forEach((server, index) => {
+                        serverHtml += `
+                            <button id="server-btn-${index}" class="filter-btn" onclick="chonServerPhim(${index})">
+                                🌐 ${server.server_name}
+                            </button>
+                        `;
                     });
-                    epBoxHtml += `</div>`;
+                    serverHtml += `</div>`;
+                    
+                    // Nơi chứa danh sách tập phim tương ứng với server được chọn
+                    serverHtml += `<div id="sub-episode-box-target"></div>`;
+                    
+                    document.getElementById('episode-box').innerHTML = serverHtml;
+                    
+                    // Mặc định kích hoạt hiển thị Server đầu tiên khi vừa mở thông tin phim
+                    chonServerPhim(0);
                 } else {
-                    epBoxHtml += '<p style="text-align:center; color:#a1a1aa; padding:20px;">Phim chưa cập nhật tập trực tuyến.</p>';
+                    document.getElementById('episode-box').innerHTML = '<p style="text-align:center; color:#a1a1aa; padding:20px;">Phim chưa cập nhật tập trực tuyến.</p>';
                 }
-                document.getElementById('episode-box').innerHTML = epBoxHtml;
                 document.getElementById('detail-view').style.display = 'block';
             } catch (e) { alert('Lỗi hệ thống tải phim!'); }
         }
 
-        // PHÁT VIDEO PLAYER VÀ HỖ TRỢ CHUYỂN TẬP NHANH NGAY TRONG TRÌNH PHÁT
+        // HÀM XỬ LÝ CHUYỂN ĐỔI QUA LẠI GIỮA CÁC SERVER (VIETSUB / THUYẾT MINH / LỒNG TIẾNG)
+        function chonServerPhim(serverIndex) {
+            // Thay đổi trạng thái hiển thị (Màu sắc nút bấm) của thanh chọn Server
+            currentMovieEpisodes.forEach((_, idx) => {
+                const btn = document.getElementById(`server-btn-${idx}`);
+                if(btn) {
+                    if(idx === serverIndex) {
+                        btn.style.background = '#e50914';
+                        btn.style.borderColor = '#e50914';
+                    } else {
+                        btn.style.background = 'rgba(34, 34, 34, 0.75)';
+                        btn.style.borderColor = 'rgba(255,255,255,0.15)';
+                    }
+                }
+            });
+
+            const currentServer = currentMovieEpisodes[serverIndex];
+            if(!currentServer || !currentServer.server_data) return;
+
+            // Đồng bộ tập phim của server này vào biến chạy chung
+            currentEpisodesData = currentServer.server_data;
+
+            // Render danh sách nút chọn tập
+            let epListHtml = `<div class="server-title">DANH SÁCH TẬP PHIM</div><div class="episode-list">`;
+            currentEpisodesData.forEach((tap, index) => {
+                epListHtml += `<button id="ep-btn-${index}" class="episode-btn" onclick="openPlayerView(${index})">${tap.name}</button>`;
+            });
+            epListHtml += `</div>`;
+
+            document.getElementById('sub-episode-box-target').innerHTML = epListHtml;
+        }
+
         function openPlayerView(index) {
             const tap = currentEpisodesData[index];
             if(!tap) return;
@@ -577,13 +618,11 @@
             const activeBtn = document.getElementById(`ep-btn-${index}`);
             if(activeBtn) activeBtn.classList.add('active-ep');
 
-            // Thiết lập link nguồn phát
             const videoLink = tap.link_embed ? tap.link_embed : `https://player.phimapi.com/player/?url=${encodeURIComponent(tap.link_m3u8)}`;
             
             document.getElementById('player-movie-title').innerText = `${currentMovieName} - Tập ${tap.name}`;
             document.getElementById('video-iframe').src = videoLink;
             
-            // Xây dựng thanh công cụ chuyển tập nhanh ở đáy trình phát phim để tăng trải nghiệm người dùng
             let quickEpHTML = ``;
             currentEpisodesData.forEach((t, idx) => {
                 const activeStyle = (idx === index) ? "background:#ff0022; border-color:#ff0022;" : "";
