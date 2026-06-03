@@ -2,244 +2,471 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cinema Premium</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rạp Phim Mini App VIP</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        /* TOÀN BỘ PHONG CÁCH PREMIER ĐEN ĐỎ */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #000;
-            color: #fff;
+            background-color: #0b0b0c;
+            color: #f5f5f7;
             margin: 0;
-            padding: 0;
-            padding-bottom: 75px; 
-            overflow-x: hidden;
-            -webkit-user-select: none;
+            padding: 16px;
+            padding-bottom: 40px;
+            -webkit-font-smoothing: antialiased;
         }
-
-        /* HEADER & FILTERS */
-        .header-top {
-            padding: 15px 16px;
-            font-size: 20px;
-            font-weight: bold;
-            position: sticky;
-            top: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 100;
+        
+        h2 { 
+            color: #ff0022; 
+            text-align: center; 
+            margin: 10px 0 20px 0; 
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 0, 34, 0.3);
         }
-
-        .filter-bar {
-            display: flex;
-            gap: 10px;
-            padding: 0 16px 15px 16px;
-            overflow-x: auto;
-        }
-        .filter-bar::-webkit-scrollbar { display: none; }
-        .f-pill {
-            background: #222;
-            border: 1px solid #333;
-            color: #fff;
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-size: 13px;
-            white-space: nowrap;
-        }
-
-        /* HERO BANNER */
-        .hero {
-            position: relative;
-            width: 92%;
-            height: 450px;
-            margin: 0 auto 20px auto;
-            border-radius: 15px;
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            overflow: hidden;
-        }
-        .hero::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0; width: 100%; height: 60%;
-            background: linear-gradient(to top, #000, transparent);
-        }
-        .hero-info {
-            position: relative;
-            z-index: 2;
+        
+        /* BANNER ĐẾM NGƯỢC VIP CHUYÊN NGHIỆP */
+        .vip-countdown-box {
+            background: linear-gradient(135deg, #1e1b4b, #311015);
+            padding: 14px;
+            border-radius: 16px;
             text-align: center;
-            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
-        .hero-btns {
+        .vip-countdown-box p { 
+            margin: 0; 
+            font-size: 11px; 
+            color: #f87171; 
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        #countdown-timer { 
+            font-size: 15px; 
+            color: #ffffff; 
+            font-family: system-ui, sans-serif;
+            display: block; 
+            margin-top: 6px; 
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+        }
+
+        /* KHU VỰC TÌM KIẾM */
+        .search-box { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 24px; 
+        }
+        input {
+            flex: 1; 
+            padding: 14px 20px; 
+            border-radius: 30px;
+            border: 1px solid #27272a; 
+            background-color: #18181b;
+            color: white; 
+            outline: none; 
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        input:focus {
+            border-color: #ff0022;
+            box-shadow: 0 0 0 2px rgba(255, 0, 34, 0.2);
+            background-color: #202024;
+        }
+        .btn {
+            padding: 14px 24px; 
+            background: linear-gradient(180deg, #ff0022, #c4001a);
+            color: white; 
+            border: none; 
+            border-radius: 30px;
+            font-weight: 700; 
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 0, 34, 0.3);
+            transition: transform 0.1s ease;
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+        
+        /* MÀN HÌNH KHÓA TRUY CẬP TRÌNH DUYỆT NGOÀI */
+        #lock-screen {
+            display: none; 
+            position: fixed; 
+            top:0; left:0; width:100%; height:100%;
+            background:#0b0b0c; 
+            z-index: 99999; 
+            padding-top: 35%; 
+            box-sizing: border-box;
+        }
+        .lock-card { 
+            background: #18181b; 
+            padding: 40px 24px; 
+            margin: 0 24px; 
+            border-radius: 24px; 
+            border: 1px solid rgba(255, 0, 34, 0.2); 
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+        }
+        
+        /* DANH SÁCH PHIM DẠNG LƯỚI HOLLYWOOD */
+        .movie-list { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 16px; 
+        }
+        .movie-item {
+            background-color: #18181b; 
+            border-radius: 14px;
+            overflow: hidden; 
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4); 
+            transition: transform 0.2s ease;
+        }
+        .movie-item:active {
+            transform: scale(0.97);
+        }
+        .movie-poster-wrapper {
+            position: relative;
+            width: 100%;
+            height: 230px;
+            background-color: #27272a;
+        }
+        .movie-item img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
+        .movie-year-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            color: #ff0022;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .movie-title {
+            font-size: 13px; 
+            padding: 10px 8px; 
+            font-weight: 600;
+            line-height: 1.4;
+            color: #f4f4f5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 36px;
+        }
+        
+        /* GIAO DIỆN CHI TIẾT PHIM */
+        #detail-view {
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background: #0b0b0c;
+            z-index: 5000; 
+            overflow-y: auto; 
+            padding: 16px; 
+            box-sizing: border-box;
+        }
+        .detail-banner {
+            margin-top: 45px;
+            background: #18181b;
+            border-radius: 20px;
+            padding: 16px;
             display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 15px;
+            gap: 16px;
+            border: 1px solid #27272a;
         }
-        .btn-p { background: #fff; color: #000; border: none; padding: 10px 30px; border-radius: 5px; font-weight: bold; width: 140px; }
-        .btn-s { background: #333; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; width: 140px; }
+        .detail-banner img { 
+            width: 105px; 
+            height: 150px; 
+            object-fit: cover; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .detail-info {
+            flex: 1;
+        }
+        .detail-info h3 { 
+            margin: 0 0 8px 0; 
+            color: #ffffff; 
+            font-size: 18px; 
+            font-weight: 700;
+            line-height: 1.3;
+        }
+        .detail-info p { 
+            font-size: 13px; 
+            color: #a1a1aa; 
+            margin: 6px 0; 
+        }
+        .movie-content-text {
+            background: #18181b;
+            padding: 16px;
+            border-radius: 16px;
+            margin-top: 16px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #d4d4d8;
+            border: 1px solid #27272a;
+        }
+        
+        .server-title { 
+            color: #a1a1aa; 
+            font-size: 12px; 
+            margin: 20px 0 10px 4px; 
+            font-weight: 700; 
+            letter-spacing: 1px;
+        }
+        
+        /* DANH SÁCH TẬP PHIM */
+        .episode-list { 
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px; 
+            margin-bottom: 25px; 
+        }
+        .episode-btn {
+            background-color: #18181b; 
+            color: #f4f4f5; 
+            padding: 12px 5px;
+            border-radius: 10px; 
+            font-size: 13px; 
+            font-weight: 600;
+            border: 1px solid #27272a; 
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+        .episode-btn:active { 
+            background: #ff0022; 
+            border-color: #ff0022;
+            color: white;
+        }
+        .back-btn { 
+            background: #27272a; 
+            position: absolute; 
+            top: 12px; left: 16px; 
+            padding: 8px 16px; 
+            font-size: 13px;
+            box-shadow: none;
+        }
 
-        /* MOVIE LISTS */
-        .row-title { margin: 20px 16px 10px; font-size: 17px; font-weight: bold; }
-        .scroll-row { display: flex; gap: 10px; overflow-x: auto; padding: 0 16px; }
-        .scroll-row::-webkit-scrollbar { display: none; }
-        .card-v { min-width: 110px; border-radius: 8px; overflow: hidden; }
-        .card-v img { width: 110px; height: 160px; object-fit: cover; }
-
-        /* BOTTOM NAVIGATION - THEO ẢNH MẪU */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0; left: 0; width: 100%;
-            height: 65px;
-            background: #111;
-            border-top: 1px solid #222;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 1000;
+        /* TRÌNH PHÁT PHIM FULL SCREEN */
+        #player-view {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: #000; z-index: 9999;
         }
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #888;
-            font-size: 10px;
-            text-decoration: none;
+        .close-player-btn {
+            position: absolute; top: 16px; right: 16px;
+            background: rgba(39, 39, 42, 0.8); 
+            backdrop-filter: blur(4px);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.1); 
+            padding: 8px 16px; 
+            border-radius: 20px;
+            font-weight: bold; z-index: 10001; cursor: pointer;
+            font-size: 12px;
         }
-        .nav-item.active { color: #fff; }
-        .nav-icon { font-size: 20px; margin-bottom: 4px; }
-
-        /* SECURITY LOCK */
-        #lock-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 9999; display: none;
-            flex-direction: column; align-items: center; justify-content: center; text-align: center;
-            padding: 20px;
-        }
-
-        /* ACCOUNT & SEARCH PAGES */
-        .page-content { display: none; padding: 20px; }
-        .active-page { display: block; }
-        .vip-box {
-            background: linear-gradient(145deg, #1a1a1a, #000);
-            border: 1px solid #e50914;
-            padding: 30px;
-            border-radius: 15px;
-            margin-top: 50px;
-        }
-        #timer { font-size: 24px; font-weight: bold; color: #e50914; margin: 15px 0; display: block; }
+        iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
 
-    <div id="lock-overlay">
-        <h2 style="color: #e50914;">TRUY CẬP KHÔNG HỢP LỆ</h2>
-        <p>Ứng dụng này chỉ khả dụng trên Telegram Mini App.</p>
+    <div id="lock-screen">
+        <div class="lock-card">
+            <h3 style="margin-top:0; color:#ff0022; font-size: 20px;">⚠️ TRUY CẬP BỊ TỪ CHỐI</h3>
+            <p style="font-size:14px; line-height:1.5;">Ứng dụng này chỉ khả dụng trực tiếp bên trong Telegram Mini App.</p>
+            <p style="color:#a1a1aa; font-size:12px; margin-top:15px;">Vui lòng không sao chép liên kết ra các trình duyệt bên ngoài như Chrome hay Safari.</p>
+        </div>
     </div>
 
-    <div id="app-body">
-        <!-- HOME PAGE -->
-        <div id="page-home" class="page-content active-page" style="padding:0">
-            <div class="header-top">Kho Phim VIP</div>
-            <div class="filter-bar">
-                <div class="f-pill">Phim Bộ</div>
-                <div class="f-pill">Phim Lẻ</div>
-                <div class="f-pill">Hoạt Hình</div>
-                <div class="f-pill">Hành Động</div>
-            </div>
-            
-            <div class="hero" style="background-image: url('https://img.phimapi.com/upload/poster/bac-si-xu-la.jpg');">
-                <div class="hero-info">
-                    <h2 id="h-title">Bác Sĩ Xứ Lạ</h2>
-                    <div class="hero-btns">
-                        <button class="btn-p">▶ Phát</button>
-                        <button class="btn-s">+ Danh sách</button>
-                    </div>
-                </div>
-            </div>
-
-            <p class="row-title">Phim mới cập nhật</p>
-            <div class="scroll-row" id="list-new"></div>
+    <div id="main-view">
+        <h2>🎬 PREMIUM CINEMA</h2>
+        
+        <div class="vip-countdown-box">
+            <p>⏱️ Thời gian VIP còn lại</p>
+            <span id="countdown-timer">Đang kết nối dữ liệu...</span>
         </div>
 
-        <!-- SEARCH PAGE -->
-        <div id="page-search" class="page-content">
-            <h3>Tìm kiếm</h3>
-            <input type="text" placeholder="Tên phim..." style="width:100%; padding:12px; border-radius:8px; border:none; background:#222; color:#fff;">
-            <div id="search-results" style="margin-top:20px;"></div>
+        <div class="search-box">
+            <input type="text" id="keyword" placeholder="Tìm tên phim, anime, quốc gia...">
+            <button class="btn" onclick="searchMovie()">Tìm</button>
         </div>
+        
+        <div class="movie-list" id="result-list"></div>
+    </div>
 
-        <!-- ACCOUNT PAGE -->
-        <div id="page-account" class="page-content">
-            <div class="vip-box">
-                <p>THỜI GIAN VIP CÒN LẠI</p>
-                <span id="timer">00:00:00</span>
-                <p style="font-size:12px; color:#888;" id="u-id">ID: Loading...</p>
-            </div>
-        </div>
+    <div id="detail-view">
+        <button class="btn back-btn" onclick="closeDetailView()">🔙 Trở Về</button>
+        <div id="movie-info-box"></div>
+        <div id="episode-box"></div>
+    </div>
 
-        <!-- BOTTOM NAV -->
-        <div class="bottom-nav">
-            <div class="nav-item active" onclick="showTab('home', this)">
-                <span class="nav-icon">🏠</span>
-                <span>Trang chủ</span>
-            </div>
-            <div class="nav-item" onclick="showTab('search', this)">
-                <span class="nav-icon">🔍</span>
-                <span>Tìm kiếm</span>
-            </div>
-            <div class="nav-item" onclick="showTab('account', this)">
-                <span class="nav-icon">👤</span>
-                <span>Tài khoản</span>
-            </div>
-        </div>
+    <div id="player-view">
+        <button class="close-player-btn" onclick="closePlayerView()">❌ Đóng Phim</button>
+        <iframe id="video-iframe" src="" allowfullscreen></iframe>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        
-        // KIỂM TRA BẢO MẬT: CHẶN TRÌNH DUYỆT NGOÀI
-        if (!tg.initData || tg.platform === 'unknown') {
-            document.getElementById('lock-overlay').style.display = 'flex';
-            document.getElementById('app-body').style.display = 'none';
-        } else {
-            tg.expand();
-            initApp();
-        }
 
-        function showTab(name, el) {
-            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active-page'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('page-' + name).classList.add('active-page');
-            el.classList.add('active');
-        }
-
-        function initApp() {
+        window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
-            document.getElementById('u-id').innerText = "ID: " + (urlParams.get('user_id') || "Guest");
+            const userId = urlParams.get('user_id');
+            const expireStr = urlParams.get('expire');
             
-            // Giả lập đếm ngược VIP
-            let timeLeft = 3600 * 24; 
-            setInterval(() => {
-                timeLeft--;
-                let h = Math.floor(timeLeft / 3600);
-                let m = Math.floor((timeLeft % 3600) / 60);
-                let s = timeLeft % 60;
-                document.getElementById('timer').innerText = `${h}h ${m}m ${s}s`;
-            }, 1000);
+            // SỬA LỖI KIỂM TRA BẢO MẬT: Nới lỏng logic để không bị chặn nhầm trên Mini App
+            const isTelegramEnv = tg.platform !== 'unknown' || tg.initData !== "" || userId;
 
-            // Load phim mẫu
-            fetch('https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=1')
-                .then(res => res.json())
-                .then(data => {
-                    let html = '';
-                    data.items.slice(0, 10).forEach(i => {
-                        html += `<div class="card-v"><img src="${i.thumb_url}"><div style="font-size:11px; margin-top:5px;">${i.name}</div></div>`;
-                    });
-                    document.getElementById('list-new').innerHTML = html;
-                });
+            if (!isTelegramEnv) {
+                hienThiManHinhKhoa();
+                return;
+            }
+
+            // Nếu ở trong Telegram, mở rộng giao diện và chạy ứng dụng
+            tg.expand();
+
+            if (expireStr) {
+                khoiChayDemNguoc(decodeURIComponent(expireStr));
+            } else {
+                document.getElementById("countdown-timer").innerHTML = "VÔ THỜI HẠN";
+            }
+
+            const searchKw = urlParams.get('search');
+            if (searchKw) {
+                document.getElementById('keyword').value = decodeURIComponent(searchKw);
+                searchMovie();
+            } else {
+                // Tự động gợi ý tải trước một vài phim hot khi vừa vào trang
+                document.getElementById('keyword').value = "Chiến";
+                searchMovie();
+            }
         }
+
+        function khoiChayDemNguoc(targetDateStr) {
+            try {
+                const parts = targetDateStr.split(" ");
+                const dateParts = parts[0].split("/");
+                const timeParts = parts[1].split(":");
+                const targetDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0], timeParts[0], timeParts[1], timeParts[2]).getTime();
+
+                const timerInterval = setInterval(function() {
+                    const now = new Date().getTime();
+                    const distance = targetDate - now;
+
+                    if (distance < 0) {
+                        clearInterval(timerInterval);
+                        document.getElementById("countdown-timer").innerHTML = "HẾT HẠN VIP";
+                        hienThiManHinhKhoa();
+                        return;
+                    }
+
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    document.getElementById("countdown-timer").innerHTML = 
+                        `${days} ngày, ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }, 1000);
+            } catch (e) {
+                document.getElementById("countdown-timer").innerHTML = "ĐANG HOẠT ĐỘNG";
+            }
+        }
+
+        function hienThiManHinhKhoa() {
+            document.getElementById('main-view').style.display = 'none';
+            document.getElementById('detail-view').style.display = 'none';
+            document.getElementById('player-view').style.display = 'none';
+            document.getElementById('lock-screen').style.display = 'block';
+        }
+
+        async function searchMovie() {
+            const kw = document.getElementById('keyword').value.trim();
+            if(!kw) return;
+            document.getElementById('result-list').innerHTML = "<p style='grid-column: span 2; text-align:center; color:#a1a1aa;'>🔍 Kho phim đang tải, xin chờ...</p>";
+            try {
+                const res = await fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=40`);
+                const data = await res.json();
+                let html = '';
+                if(data.status === 'success' && data.data.items && data.data.items.length > 0) {
+                    data.data.items.forEach(phim => {
+                        html += `
+                            <div class="movie-item" onclick="loadMovieDetail('${phim.slug}')">
+                                <div class="movie-poster-wrapper">
+                                    <span class="movie-year-badge">${phim.year}</span>
+                                    <img src="https://img.phimapi.com/${phim.thumb_url}" onerror="this.src='https://via.placeholder.com/150x230?text=No+Poster'">
+                                </div>
+                                <div class="movie-title">${phim.name}</div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html = '<p style="grid-column: span 2; text-align:center; color:#a1a1aa;">❌ Không tìm thấy phim phù hợp!</p>';
+                }
+                document.getElementById('result-list').innerHTML = html;
+            } catch (e) {
+                document.getElementById('result-list').innerHTML = '<p style="grid-column: span 2; text-align:center; color:#ff0022;">⚠️ Lỗi kết nối API kho phim.</p>';
+            }
+        }
+
+        async function loadMovieDetail(slug) {
+            try {
+                const res = await fetch(`https://phimapi.com/phim/${slug}`);
+                const data = await res.json();
+                if(!data || !data.movie) return;
+
+                const movie = data.movie;
+                let infoHtml = `
+                    <div class="detail-banner">
+                        <img src="${movie.thumb_url}" onerror="this.src='https://via.placeholder.com/110x160'">
+                        <div class="detail-info">
+                            <h3>${movie.name}</h3>
+                            <p>🗓️ Năm phát hành: <span style="color:white; font-weight:600;">${movie.year}</span></p>
+                            <p>⏱️ Thời lượng: <span style="color:white; font-weight:600;">${movie.time || 'N/A'}</span></p>
+                            <p>🌍 Quốc gia: <span style="color:white; font-weight:600;">${movie.country && movie.country[0] ? movie.country[0].name : 'N/A'}</span></p>
+                        </div>
+                    </div>
+                    <div class="movie-content-text"><strong>Nội dung:</strong> ${movie.content ? movie.content : 'Đang cập nhật nội dung...'}</div>
+                `;
+                document.getElementById('movie-info-box').innerHTML = infoHtml;
+
+                let epBoxHtml = '';
+                if (data.episodes && data.episodes.length > 0) {
+                    data.episodes.forEach(server => {
+                        if(server.server_data && server.server_data.length > 0) {
+                            epBoxHtml += `<div class="server-title">CHỌN TẬP PHIM (${server.server_name.toUpperCase()})</div><div class="episode-list">`;
+                            server.server_data.forEach(tap => {
+                                if(tap.link_m3u8) {
+                                    epBoxHtml += `<button class="episode-btn" onclick="openPlayerView('${tap.link_m3u8}')">${tap.name}</button>`;
+                                }
+                            });
+                            epBoxHtml += `</div>`;
+                        }
+                    });
+                } else {
+                    epBoxHtml += '<p style="text-align:center; color:#a1a1aa;">Phim chưa cập nhật tập trực tuyến.</p>';
+                }
+                document.getElementById('episode-box').innerHTML = epBoxHtml;
+                document.getElementById('detail-view').style.display = 'block';
+            } catch (e) { alert('Lỗi hệ thống tải phim!'); }
+        }
+
+        function openPlayerView(linkVideo) {
+            document.getElementById('video-iframe').src = `https://player.phimapi.com/player/?url=${encodeURIComponent(linkVideo)}`;
+            document.getElementById('player-view').style.display = 'block';
+        }
+        function closeDetailView() { document.getElementById('detail-view').style.display = 'none'; }
+        function closePlayerView() { document.getElementById('player-view').style.display = 'none'; document.getElementById('video-iframe').src = ''; }
     </script>
 </body>
 </html>
