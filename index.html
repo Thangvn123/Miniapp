@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Cinema</title>
+    <title>Premium Cinema VIP</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         /* TOÀN BỘ PHONG CÁCH NETFLIX CHUẨN ĐẸP */
@@ -13,28 +13,9 @@
             color: #f5f5f7;
             margin: 0;
             padding: 0;
-            padding-bottom: 60px;
+            padding-bottom: 80px; /* Chừa không gian cho thanh điều hướng dưới đáy */
             -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
-        }
-
-        /* THANH ĐẦU TRANG */
-        .header-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%);
-            position: absolute;
-            top: 0; left: 0; width: 100%; z-index: 100;
-            box-sizing: border-box;
-        }
-        .brand-logo {
-            color: #e50914;
-            font-size: 28px;
-            font-weight: 900;
-            letter-spacing: 1px;
-            text-decoration: none;
         }
 
         /* MENU BỘ LỌC TỐI ƯU THEO ẢNH MẪU */
@@ -43,7 +24,7 @@
             gap: 10px;
             padding: 0 16px;
             position: absolute;
-            top: 65px; left: 0; width: 100%; z-index: 100;
+            top: 20px; left: 0; width: 100%; z-index: 100;
             box-sizing: border-box;
             overflow-x: auto;
         }
@@ -72,11 +53,11 @@
             background-position: right 10px center;
         }
 
-        /* BANNER PHIM NỔI BẬT (HERO BANNER) */
+        /* BANNER PHIM NỔI BẬT (HERO BANNER CHUẨN NETFLIX) */
         .hero-banner {
             position: relative;
             width: 100%;
-            height: 520px;
+            height: 480px;
             background-size: cover;
             background-position: center top;
             display: flex;
@@ -144,48 +125,58 @@
             cursor: pointer;
         }
 
-        /* BANNER VIP ĐẾM NGƯỢC BẢO MẬT */
-        .vip-and-search {
-            padding: 0 16px;
-            margin-top: -15px;
-            position: relative;
-            z-index: 10;
+        /* PHÂN CHIA CÁC PHÂN HỆ TRANG */
+        .page-section {
+            display: none;
         }
-        .vip-countdown-box {
-            background: linear-gradient(135deg, #1f1b2e, #1a1415);
-            padding: 12px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 16px;
-            border: 1px solid rgba(255, 0, 34, 0.25);
+        .page-section.active-page {
+            display: block;
         }
-        .vip-countdown-box p { margin: 0; font-size: 11px; color: #ff3355; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
-        #countdown-timer { font-weight: bold; color: #ffffff; font-size: 14px; display: block; margin-top: 4px; }
-        
+
+        /* KHU VỰC TÌM KIẾM CHUYÊN BIỆT */
+        .search-page-container {
+            padding: 24px 16px;
+        }
         .search-container {
             display: flex;
             gap: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         input {
-            flex: 1; padding: 12px 18px; border-radius: 30px; border: 1px solid #27272a; 
-            background-color: #18181b; color: white; outline: none; box-sizing: border-box; font-size: 14px;
+            flex: 1; padding: 14px 18px; border-radius: 30px; border: 1px solid #27272a; 
+            background-color: #18181b; color: white; outline: none; box-sizing: border-box; font-size: 15px;
         }
         input:focus { border-color: #e50914; }
         .btn-search-trigger {
-            background: #e50914; color: white; border: none; padding: 0 20px; border-radius: 30px; font-weight: bold; font-size: 14px;
+            background: #e50914; color: white; border: none; padding: 0 24px; border-radius: 30px; font-weight: bold; font-size: 14px;
         }
+
+        /* KHU VỰC TÀI KHOẢN VIP CHUYÊN BIỆT */
+        .account-page-container {
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .vip-card-box {
+            background: linear-gradient(135deg, #1f1b2e, #1a1415);
+            padding: 30px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 0, 34, 0.3);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            margin-top: 20px;
+        }
+        .vip-card-box h3 { margin: 0 0 15px 0; color: #ff3355; font-size: 18px; letter-spacing: 1px; }
+        #countdown-timer { font-weight: bold; color: #ffffff; font-size: 20px; font-family: monospace; display: block; margin-top: 10px; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        .user-info-text { font-size: 14px; color: #a1a1aa; margin-top: 15px; }
 
         /* TIÊU ĐỀ MỤC PHIM */
         .section-title {
             font-size: 16px; font-weight: bold; margin: 24px 0 12px 16px; color: #fff; letter-spacing: 0.5px;
         }
 
-        /* GRID PHIM 2 CỘT HOLLYWOOD NHƯ CŨ */
+        /* GRID PHIM VÀ SLIDER */
         .movie-list { 
             display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding: 0 16px;
         }
-        /* SLIDER THỊNH HÀNH */
         .movie-slider {
             display: flex; gap: 12px; overflow-x: auto; padding: 0 16px 8px 16px;
         }
@@ -202,6 +193,41 @@
         .movie-year-badge { position: absolute; top: 8px; left: 8px; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); color: #ff0022; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; }
         .movie-title { font-size: 12px; padding: 8px 6px; font-weight: 600; line-height: 1.4; color: #f4f4f5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 34px; text-align: left; }
 
+        /* THANH ĐIỀU HƯỚNG DƯỚI ĐÁY CHUẨN APP */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; width: 100%;
+            height: 64px;
+            background-color: #101010;
+            border-top: 1px solid #222;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 4000;
+            box-sizing: border-box;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #747474;
+            font-size: 11px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            width: 33.33%;
+            height: 100%;
+            transition: color 0.2s;
+        }
+        .nav-item .nav-icon {
+            font-size: 20px;
+            margin-bottom: 3px;
+        }
+        .nav-item.active-nav {
+            color: #ffffff;
+        }
+
         /* MÀN HÌNH KHÓA BẢO MẬT TUYỆT ĐỐI */
         #lock-screen { 
             display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:#0b0b0c; z-index: 99999; padding-top: 45%; box-sizing: border-box; 
@@ -209,8 +235,9 @@
         .lock-card { 
             background: #18181b; padding: 40px 24px; margin: 0 24px; border-radius: 24px; border: 1px solid rgba(255, 0, 34, 0.25); text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.6); 
         }
+        .lock-card p { font-size:14px; line-height:1.5; color: #f5f5f7; }
 
-        /* CHI TIẾT VÀ TRÌNH PHÁT */
+        /* CHI TIẾT VÀ TRÌNH PHÁT PHIM */
         #detail-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b0b0c; z-index: 5000; overflow-y: auto; padding: 16px; box-sizing: border-box; }
         .detail-banner { margin-top: 45px; background: #18181b; border-radius: 20px; padding: 16px; display: flex; gap: 16px; border: 1px solid #27272a; }
         .detail-banner img { width: 100px; height: 145px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
@@ -235,63 +262,89 @@
 <body>
 
     <div id="lock-screen">
-        <div class="lock-card">
+        <div class="lock-card" id="lock-card-content">
             <h3 style="margin-top:0; color:#ff0022; font-size: 20px;">⚠️ TRUY CẬP BỊ TỪ CHỐI</h3>
-            <p style="font-size:14px; line-height:1.5;">Tài khoản VIP của bạn chưa kích hoạt hoặc đã hết hạn.</p>
-            <p style="color:#a1a1aa; font-size:12px; margin-top:15px;">Vui lòng mua mã Key VIP mới và gửi vào ô chat Bot để kích hoạt lại.</p>
+            <p>Tài khoản VIP chưa kích hoạt hoặc đã hết hạn.</p>
         </div>
     </div>
 
     <div id="main-view">
-        <div class="header-bar">
-            <a href="#" class="brand-logo" onclick="location.reload()">NETFLIX</a>
+        
+        <div id="page-home" class="page-section active-page">
+            <div class="filter-menu">
+                <button class="filter-btn" onclick="locLoaiPhim('phim-bo')">Series</button>
+                <button class="filter-btn" onclick="locLoaiPhim('phim-le')">Phim</button>
+                <button class="filter-btn" onclick="locLoaiPhim('hoat-hinh')">Hoạt hình</button>
+                <select class="filter-select" onchange="locTheLoai(this.value)">
+                    <option value="">Thể loại</option>
+                    <option value="hanh-dong">Hành Động</option>
+                    <option value="co-trang">Cổ Trang</option>
+                    <option value="tinh-cam">Tình Cảm</option>
+                    <option value="kinh-di">Kinh Dị</option>
+                    <option value="hai-huoc">Hài Hước</option>
+                    <option value="vien-tuong">Viễn Tưởng</option>
+                </select>
+            </div>
+
+            <div class="hero-banner" id="hero-section" style="background-image: url('https://via.placeholder.com/480x600?text=Premium+Cinema');">
+                <div class="hero-content">
+                    <div class="hero-title" id="hero-title">Đang chọn siêu phẩm...</div>
+                    <div class="hero-tags" id="hero-tags">Độc Quyền • Đang Cập Nhật</div>
+                    <div class="hero-buttons">
+                        <button class="btn-play" id="hero-play-btn" onclick="">▶ Phát</button>
+                        <button class="btn-mylist" onclick="alert('Đã thêm phim này vào Danh sách của tôi!')">＋ Danh sách</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dynamic-content">
+                <div class="section-title">🔥 Phim Thịnh Hành Trên Trang Chủ</div>
+                <div class="movie-slider" id="slider-trending"></div>
+
+                <div class="section-title">🎬 Gợi Ý Phim Dành Cho Bạn</div>
+                <div class="movie-list" id="result-list"></div>
+            </div>
         </div>
 
-        <div class="filter-menu">
-            <button class="filter-btn" onclick="locLoaiPhim('phim-bo')">Series</button>
-            <button class="filter-btn" onclick="locLoaiPhim('phim-le')">Phim</button>
-            <button class="filter-btn" onclick="locLoaiPhim('hoat-hinh')">Mới và nổi bật</button>
-            <select class="filter-select" onchange="locTheLoai(this.value)">
-                <option value="">Thể loại</option>
-                <option value="hanh-dong">Hành Động</option>
-                <option value="co-trang">Cổ Trang</option>
-                <option value="tinh-cam">Tình Cảm</option>
-                <option value="kinh-di">Kinh Dị</option>
-                <option value="hai-huoc">Hài Hước</option>
-                <option value="vien-tuong">Viễn Tưởng</option>
-                <option value="chinh-kich">Chính Kịch</option>
-                <option value="y-khoa">Y Khoa</option>
-            </select>
-        </div>
-
-        <div class="hero-banner" id="hero-section" style="background-image: url('https://via.placeholder.com/480x600?text=Netflix+Premium');">
-            <div class="hero-content">
-                <div class="hero-title" id="hero-title">Đang chọn siêu phẩm...</div>
-                <div class="hero-tags" id="hero-tags">Độc Quyền • Đang Cập Nhật</div>
-                <div class="hero-buttons">
-                    <button class="btn-play" id="hero-play-btn" onclick="">▶ Phát</button>
-                    <button class="btn-mylist" onclick="alert('Đã thêm phim này vào Danh sách của tôi!')">＋ Danh sách của tôi</button>
+        <div id="page-search" class="page-section">
+            <div class="search-page-container">
+                <h3 style="margin-top: 10px; margin-bottom: 20px;">Tìm kiếm phim</h3>
+                <div class="search-container">
+                    <input type="text" id="keyword" placeholder="Nhập tên phim, từ khóa cần tìm...">
+                    <button class="btn-search-trigger" onclick="searchMovie()">Tìm kiếm</button>
+                </div>
+                <div class="movie-list" id="search-grid-target">
+                    <p style="grid-column: span 2; text-align: center; color: #a1a1aa; padding-top: 30px;">Nhập từ khóa phía trên để tìm phim.</p>
                 </div>
             </div>
         </div>
 
-        <div class="vip-and-search">
-            <div class="vip-countdown-box">
-                <p>⏱️ Thời gian VIP còn lại</p>
-                <span id="countdown-timer">Đang kiểm tra kết nối...</span>
-            </div>
-            <div class="search-container">
-                <input type="text" id="keyword" placeholder="Tìm tên phim, anime, quốc gia...">
-                <button class="btn-search-trigger" onclick="searchMovie()">Tìm</button>
+        <div id="page-account" class="page-section">
+            <div class="account-page-container">
+                <h3 style="margin-top: 10px;">Trung tâm Tài khoản VIP</h3>
+                
+                <div class="vip-card-box">
+                    <h3>⏱️ THỜI GIAN VIP CÒN LẠI</h3>
+                    <span id="countdown-timer">Đang kiểm tra dữ liệu tài khoản...</span>
+                    <div class="user-info-text" id="user-id-display">ID Người dùng: Đang tải...</div>
+                </div>
+                <p style="font-size: 12px; color: #71717a; margin-top: 30px; line-height: 1.6;">Tài khoản VIP của bạn cho phép truy cập toàn bộ kho phim không giới hạn tốc độ cao và không có quảng cáo.</p>
             </div>
         </div>
 
-        <div id="dynamic-content">
-            <div class="section-title">🔥 Phim Thịnh Hành Trên Trang Chủ</div>
-            <div class="movie-slider" id="slider-trending"></div>
-
-            <div class="section-title">🎬 Gợi Ý Phim Dành Cho Bạn</div>
-            <div class="movie-list" id="result-list"></div>
+        <div class="bottom-nav">
+            <div class="nav-item active-nav" id="nav-home" onclick="switchTab('home')">
+                <span class="nav-icon">🏠</span>
+                <span>Trang chủ</span>
+            </div>
+            <div class="nav-item" id="nav-search" onclick="switchTab('search')">
+                <span class="nav-icon">🔍</span>
+                <span>Tìm kiếm</span>
+            </div>
+            <div class="nav-item" id="nav-account" onclick="switchTab('account')">
+                <span class="nav-icon">👤</span>
+                <span>Tài khoản</span>
+            </div>
         </div>
     </div>
 
@@ -320,32 +373,56 @@
         let currentMovieName = "";
 
         window.onload = function() {
+            // LỚP BẢO MẬT 1: Chặn truy cập từ trình duyệt ngoài Telegram (Chrome, Safari, Edge...)
+            // Ứng dụng chạy trên Telegram bắt buộc phải có initData hoặc một platform cụ thể
+            if (!tg.initData || tg.platform === 'unknown') {
+                hienThiManHinhKhoaTrinhDuyet();
+                return;
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
             const userId = urlParams.get('user_id');
             const expireStr = urlParams.get('expire');
             
-            // LỚP BẢO MẬT: Chặn truy cập nếu không thỏa điều kiện
+            // LỚP BẢO MẬT 2: Chặn toàn bộ nếu URL không chứa tham số xác thực
             if (!userId || !expireStr) {
-                hienThiManHinhKhoa();
+                hienThiManHinhKhoaVIP();
                 return;
             }
 
+            // Hiển thị ID Người dùng trong Tab Tài Khoản
+            document.getElementById('user-id-display').innerText = `ID Người dùng: ${userId}`;
+
+            // LỚP BẢO MẬT 3: Bộ đếm thời gian thực khóa tài khoản khi hết hạn
             khoiChayDemNguoc(decodeURIComponent(expireStr));
             
-            // Tải dữ liệu mặc định lên trang chủ
+            // Chỉ khi vượt qua các lớp bảo mật, API phim mới được phép tải dữ liệu
             taiPhimTrangChu();
-
-            const searchKw = urlParams.get('search');
-            if (searchKw) {
-                document.getElementById('keyword').value = decodeURIComponent(searchKw);
-                searchMovie();
-            }
         }
 
-        function hienThiManHinhKhoa() {
+        function hienThiManHinhKhoaTrinhDuyet() {
             document.getElementById('main-view').style.display = 'none';
             document.getElementById('detail-view').style.display = 'none';
             document.getElementById('player-view').style.display = 'none';
+            
+            document.getElementById('lock-card-content').innerHTML = `
+                <h3 style="margin-top:0; color:#ff0022; font-size: 20px;">🚫 KHÔNG THỂ TRUY CẬP</h3>
+                <p style="font-weight: bold; color: #fff;">Ứng dụng này là độc quyền Premium và chỉ hoạt động bên trong Telegram Mini App.</p>
+                <p style="color:#a1a1aa; font-size:12px; margin-top:15px;">Vui lòng quay lại Bot Telegram và nhấn nút mở ứng dụng để trải nghiệm kho phim.</p>
+            `;
+            document.getElementById('lock-screen').style.display = 'block';
+        }
+
+        function hienThiManHinhKhoaVIP() {
+            document.getElementById('main-view').style.display = 'none';
+            document.getElementById('detail-view').style.display = 'none';
+            document.getElementById('player-view').style.display = 'none';
+            
+            document.getElementById('lock-card-content').innerHTML = `
+                <h3 style="margin-top:0; color:#ff0022; font-size: 20px;">⚠️ TRUY CẬP BỊ TỪ CHỐI</h3>
+                <p>Tài khoản VIP của bạn chưa được kích hoạt hoặc đã hết hạn sử dụng.</p>
+                <p style="color:#a1a1aa; font-size:12px; margin-top:15px;">Vui lòng mua mã Key VIP mới và gửi vào ô chat Bot để kích hoạt lại.</p>
+            `;
             document.getElementById('lock-screen').style.display = 'block';
         }
 
@@ -363,7 +440,7 @@
                     if (distance < 0) {
                         clearInterval(timerInterval);
                         document.getElementById("countdown-timer").innerHTML = "HẾT HẠN VIP";
-                        hienThiManHinhKhoa();
+                        hienThiManHinhKhoaVIP();
                         return;
                     }
 
@@ -380,15 +457,26 @@
             }
         }
 
+        // CHUYỂN ĐỔI QUA LẠI CÁC TAB TRÊN THANH ĐIỀU HƯỚNG DƯỚI ĐÁY
+        function switchTab(tabName) {
+            document.querySelectorAll('.page-section').forEach(page => {
+                page.classList.remove('active-page');
+            });
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                nav.classList.remove('active-nav');
+            });
+
+            document.getElementById(`page-${tabName}`).classList.add('active-page');
+            document.getElementById(`nav-${tabName}`).classList.add('active-nav');
+        }
+
         // TỰ ĐỘNG PHÁT TRIỂN NỘI DUNG ĐỀ XUẤT TRANG CHỦ
         async function taiPhimTrangChu() {
             try {
-                // Lấy danh sách phim mới cập nhật nhất từ API để làm dữ liệu trang chủ
                 const res = await fetch('https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=1');
                 const data = await res.json();
                 
                 if(data.items && data.items.length > 0) {
-                    // Thiết lập ngẫu nhiên 1 phim bom tấn làm Hero Banner ở đầu trang
                     const randomIndex = Math.floor(Math.random() * Math.min(data.items.length, 6));
                     const heroMovie = data.items[randomIndex];
                     
@@ -397,7 +485,6 @@
                     document.getElementById('hero-tags').innerText = `${heroMovie.origin_name} • Năm công chiếu: ${heroMovie.year}`;
                     document.getElementById('hero-play-btn').setAttribute('onclick', `loadMovieDetail('${heroMovie.slug}')`);
 
-                    // Điền dữ liệu vào slider "Thịnh Hành"
                     let sliderHtml = '';
                     data.items.forEach(phim => {
                         sliderHtml += `
@@ -412,7 +499,6 @@
                     });
                     document.getElementById('slider-trending').innerHTML = sliderHtml;
 
-                    // Điền dữ liệu ngẫu nhiên làm danh sách gợi ý phía dưới dạng lưới 2 cột
                     let gridHtml = '';
                     data.items.slice().reverse().forEach(phim => {
                         gridHtml += `
@@ -435,12 +521,7 @@
             const kw = document.getElementById('keyword').value.trim();
             if(!kw) return;
             
-            document.getElementById('dynamic-content').innerHTML = `
-                <div class="section-title">🔍 Kết quả tìm kiếm cho "${kw}"</div>
-                <div class="movie-list" id="search-grid-target">
-                    <p style='grid-column: span 2; text-align:center; color:#a1a1aa;'>🔍 Kho phim đang tải, xin chờ...</p>
-                </div>
-            `;
+            document.getElementById('search-grid-target').innerHTML = `<p style='grid-column: span 2; text-align:center; color:#a1a1aa; padding-top: 30px;'>🔍 Đang lục tìm dữ liệu phim...</p>`;
             
             try {
                 const res = await fetch(`https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(kw)}&limit=40`);
@@ -460,15 +541,15 @@
                         `;
                     });
                 } else {
-                    html = '<p style="grid-column: span 2; text-align:center; color:#a1a1aa;">❌ Không tìm thấy phim phù hợp!</p>';
+                    html = '<p style="grid-column: span 2; text-align:center; color:#a1a1aa; padding-top: 30px;">❌ Không tìm thấy phim phù hợp!</p>';
                 }
                 document.getElementById('search-grid-target').innerHTML = html;
             } catch (e) {
-                document.getElementById('search-grid-target').innerHTML = '<p style="grid-column: span 2; text-align:center; color:#ff0022;">⚠️ Lỗi kết nối API kho phim.</p>';
+                document.getElementById('search-grid-target').innerHTML = '<p style="grid-column: span 2; text-align:center; color:#ff0022; padding-top: 30px;">⚠️ Lỗi kết nối API kho phim.</p>';
             }
         }
 
-        // BỘ LỌC THỂ LOẠI (DROPDOWN CHỌN)
+        // BỘ LỌC THỂ LOẠI (DROPDOWN CHỌN TRÊN TRANG CHỦ)
         async function locTheLoai(slugTheLoai) {
             if(!slugTheLoai) { taiPhimTrangChu(); return; }
             hienThiLoadingDynamic();
@@ -479,16 +560,16 @@
             } catch (e) { bieuThiLoiDynamic(); }
         }
 
-        // BỘ LỌC SERIES / PHIM LẺ / HOẠT HÌNH (BUTTONS)
+        // BỘ LỌC SERIES / PHIM LẺ / HOẠT HÌNH
         async function locLoaiPhim(loai) {
             hienThiLoadingDynamic();
             try {
                 const res = await fetch(`https://phimapi.com/v1/api/danh-sach/${loai}?limit=30`);
                 const data = await res.json();
                 let title = "Danh Sách Phim";
-                if(loai === 'phim-bo') title = "Series Châu Á & Quốc Tế";
-                if(loai === 'phim-le') title = "Phim Chiếu Rạp Chọn Lọc";
-                if(loai === 'hoat-hinh') title = "Phim Mới và Nổi Bật (Anime)";
+                if(loai === 'phim-bo') title = "Series Dài Tập Chọn Lọc";
+                if(loai === 'phim-le') title = "Phim Chiếu Rạp Bom Tấn";
+                if(loai === 'hoat-hinh') title = "Phim Hoạt Hình (Anime) Mới";
                 
                 renderGiaoDienLoc(title, data.data.items);
             } catch (e) { bieuThiLoiDynamic(); }
@@ -518,7 +599,7 @@
         }
 
         function hienThiLoadingDynamic() {
-            document.getElementById('dynamic-content').innerHTML = "<p style='text-align:center; color:#ff0022; padding:50px;'>🔍 Đang đồng bộ kho phim Netflix...</p>";
+            document.getElementById('dynamic-content').innerHTML = "<p style='text-align:center; color:#ff0022; padding:50px;'>🔍 Đang đồng bộ kho phim...</p>";
         }
         function bieuThiLoiDynamic() {
             document.getElementById('dynamic-content').innerHTML = "<p style='text-align:center; color:#ff0022; padding:50px;'>⚠️ Thao tác thất bại. Lỗi đường truyền API.</p>";
@@ -539,7 +620,7 @@
                         <img src="${movie.thumb_url}" onerror="this.src='https://via.placeholder.com/110x160'">
                         <div class="detail-info">
                             <h3>${movie.name}</h3>
-                            <p>Annum: <span style="color:white; font-weight:600;">${movie.year}</span></p>
+                            <p>Năm: <span style="color:white; font-weight:600;">${movie.year}</span></p>
                             <p>Thời lượng: <span style="color:white; font-weight:600;">${movie.time || 'N/A'}</span></p>
                             <p>Tình trạng: <span style="color:#ff0022; font-weight:600;">${movie.episode_current}</span></p>
                         </div>
@@ -568,7 +649,7 @@
             } catch (e) { alert('Lỗi hệ thống tải phim!'); }
         }
 
-        // PHÁT VIDEO PLAYER VÀ HỖ TRỢ CHUYỂN TẬP NHANH NGAY TRONG TRÌNH PHÁT
+        // PHÁT VIDEO PLAYER VÀ CHUYỂN TẬP NHANH NGAY TRONG TRÌNH PHÁT
         function openPlayerView(index) {
             const tap = currentEpisodesData[index];
             if(!tap) return;
@@ -577,13 +658,11 @@
             const activeBtn = document.getElementById(`ep-btn-${index}`);
             if(activeBtn) activeBtn.classList.add('active-ep');
 
-            // Thiết lập link nguồn phát
             const videoLink = tap.link_embed ? tap.link_embed : `https://player.phimapi.com/player/?url=${encodeURIComponent(tap.link_m3u8)}`;
             
             document.getElementById('player-movie-title').innerText = `${currentMovieName} - Tập ${tap.name}`;
             document.getElementById('video-iframe').src = videoLink;
             
-            // Xây dựng thanh công cụ chuyển tập nhanh ở đáy trình phát phim để tăng trải nghiệm người dùng
             let quickEpHTML = ``;
             currentEpisodesData.forEach((t, idx) => {
                 const activeStyle = (idx === index) ? "background:#ff0022; border-color:#ff0022;" : "";
